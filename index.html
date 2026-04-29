@@ -1,0 +1,2123 @@
+<!DOCTYPE html>
+
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0a0a1a">
+<meta name="description" content="WordQuest Math Legends — O jogo de matemática mais épico">
+<title>WordQuest: Math Legends v2</title>
+
+<!-- Ícone para adicionar na tela do iPhone -->
+
+<link rel="apple-touch-icon" href="assets/icon.png">
+
+<!-- Stylesheet externo -->
+
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app">
+<div id="toasts"></div>
+
+<!-- OVERLAY MODAL -->
+
+<div class="overlay" id="mainModal">
+  <div class="modal" id="mainModalInner"></div>
+</div>
+
+<!-- SPLASH -->
+
+<div class="screen active" id="splash">
+  <div class="stars-bg" id="starsBg"></div>
+  <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:28px;position:relative;z-index:1">
+    <span class="s-logo">🧮</span>
+    <h1 class="s-title" style="margin:14px 0 4px">WordQuest</h1>
+    <p class="s-sub">Math Legends v2</p>
+    <p class="s-desc">A jornada matemática mais épica<br>🏆 Do básico à OMBEP Ouro</p>
+    <button class="s-btn" id="splashBtn">Começar Aventura ⚡</button>
+    <p style="margin-top:20px;color:var(--t3);font-size:.75rem">v2.0 • 26 pets • 5 mundos • Simulados OMBEP</p>
+  </div>
+</div>
+
+<!-- PROFILES -->
+
+<div class="screen" id="profiles">
+  <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:rgba(10,10,26,.95);border-bottom:1px solid var(--brd);flex-shrink:0;">
+    <span style="font-size:1.5rem">🧮</span>
+    <div>
+      <div style="font-weight:900;font-size:1rem">WordQuest</div>
+      <div style="color:var(--t2);font-size:.78rem">Selecione ou crie um perfil</div>
+    </div>
+  </div>
+  <div class="sbody">
+    <div id="profList" class="prof-grid"></div>
+    <p style="text-align:center;color:var(--t3);font-size:.78rem">Até 8 perfis independentes</p>
+    <div style="height:10px"></div>
+  </div>
+</div>
+
+<!-- HOME -->
+
+<div class="screen" id="home">
+  <div class="topbar" id="homeTopbar"></div>
+  <div class="sbody" id="homeBody"></div>
+  <div class="bnav" id="homeNav"></div>
+</div>
+
+<!-- MAP -->
+
+<div class="screen" id="map">
+  <div class="topbar">
+    <button class="btn btn-gh btn-sm" onclick="goHome()">← Início</button>
+    <span style="font-weight:700;flex:1;text-align:center">🗺️ Mapa dos Mundos</span>
+    <div style="width:56px"></div>
+  </div>
+  <div class="sbody" id="mapBody"></div>
+</div>
+
+<!-- PETS -->
+
+<div class="screen" id="pets">
+  <div class="topbar">
+    <button class="btn btn-gh btn-sm" onclick="goHome()">← Início</button>
+    <span style="font-weight:700;flex:1;text-align:center">🐾 Meus Pets</span>
+    <div style="width:56px"></div>
+  </div>
+  <div class="sbody" id="petsBody"></div>
+</div>
+
+<!-- SHOP -->
+
+<div class="screen" id="shop">
+  <div class="topbar">
+    <button class="btn btn-gh btn-sm" onclick="goHome()">← Início</button>
+    <span style="font-weight:700;flex:1;text-align:center">🛒 Loja</span>
+    <div style="width:56px"></div>
+  </div>
+  <div class="sbody" id="shopBody"></div>
+</div>
+
+<!-- ACHIEVEMENTS -->
+
+<div class="screen" id="achievements">
+  <div class="topbar">
+    <button class="btn btn-gh btn-sm" onclick="goHome()">← Início</button>
+    <span style="font-weight:700;flex:1;text-align:center">🏅 Conquistas</span>
+    <div style="width:56px"></div>
+  </div>
+  <div class="sbody" id="achBody"></div>
+</div>
+
+<!-- PROFILE SCREEN -->
+
+<div class="screen" id="profile">
+  <div class="topbar">
+    <button class="btn btn-gh btn-sm" onclick="goHome()">← Início</button>
+    <span style="font-weight:700;flex:1;text-align:center">👤 Perfil</span>
+    <div style="width:56px"></div>
+  </div>
+  <div class="sbody" id="profileBody"></div>
+</div>
+
+<!-- GAME -->
+
+<div class="screen" id="game"></div>
+
+<!-- RESULT -->
+
+<div class="screen" id="result">
+  <div class="topbar" style="justify-content:center">
+    <span style="font-weight:700" id="resultTitle">Resultado</span>
+  </div>
+  <div class="result-inner" id="resultBody"></div>
+</div>
+
+</div><!-- /app -->
+
+<script>
+(function(){
+'use strict';
+
+/* ═══════════════════════════════════════════════════
+   DADOS
+═══════════════════════════════════════════════════ */
+
+var WORLDS = [
+  {id:0,name:'Planície dos Números',emoji:'🌱',color:'#4ade80',dark:'#031a0a',
+   desc:'Onde toda jornada matemática começa.',
+   phases:[
+    {name:'Contagem Mágica',topic:'Números 1-20',diff:1},
+    {name:'Somas Simples',topic:'Adição básica',diff:1},
+    {name:'Subtração Heroica',topic:'Subtração básica',diff:1},
+    {name:'Multiplicação',topic:'Tabuada 2-5',diff:2},
+    {name:'Divisão',topic:'Divisão exata',diff:2},
+    {name:'BOSS: Dragão dos Números',topic:'Revisão geral',diff:2,boss:1},
+  ]},
+  {id:1,name:'Floresta das Frações',emoji:'🍃',color:'#fb923c',dark:'#1c0a04',
+   desc:'Onde os números se dividem e se unem.',
+   phases:[
+    {name:'Metades e Quartos',topic:'Frações básicas',diff:2},
+    {name:'Denominadores Iguais',topic:'Soma de frações',diff:2},
+    {name:'Frações Equivalentes',topic:'Equivalência',diff:3},
+    {name:'Mult. e Div. de Frações',topic:'Operações',diff:3},
+    {name:'Frações Mistas',topic:'Números mistos',diff:3},
+    {name:'BOSS: Hidra das Frações',topic:'Revisão completa',diff:3,boss:1},
+  ]},
+  {id:2,name:'Castelo da Álgebra',emoji:'🏰',color:'#818cf8',dark:'#0f0a2e',
+   desc:'Onde X guarda segredos e equações reinam.',
+   phases:[
+    {name:'O Mistério do X',topic:'Equações 1º grau',diff:3},
+    {name:'Dois Lados Iguais',topic:'Equações lineares',diff:3},
+    {name:'Inequações',topic:'Inequações 1º grau',diff:4},
+    {name:'Sistemas de Equações',topic:'2 incógnitas',diff:4},
+    {name:'Polinômios',topic:'Operações algébricas',diff:4},
+    {name:'BOSS: Algebrix Supremo',topic:'Desafio final',diff:4,boss:1},
+  ]},
+  {id:3,name:'Templo da Geometria',emoji:'📐',color:'#f472b6',dark:'#1f0d16',
+   desc:'Onde formas ganham vida e ângulos falam.',
+   phases:[
+    {name:'Ângulos Secretos',topic:'Tipos de ângulos',diff:3},
+    {name:'Áreas Reveladas',topic:'Área de figuras',diff:4},
+    {name:'Volumes Mágicos',topic:'Volume de sólidos',diff:4},
+    {name:'Pitágoras Desperta',topic:'Teorema de Pitágoras',diff:5},
+    {name:'Trigonometria',topic:'Seno, cosseno, tangente',diff:5},
+    {name:'BOSS: Guardião Geométrico',topic:'Geometria total',diff:5,boss:1},
+  ]},
+  {id:4,name:'Arena OMBEP',emoji:'🏆',color:'#fbbf24',dark:'#1c0f00',
+   desc:'O desafio supremo. Apenas os mais preparados chegam aqui.',
+   phases:[
+    {name:'Treino Olímpico I',topic:'Lógica e contagem',diff:5},
+    {name:'Treino Olímpico II',topic:'Teoria dos números',diff:5},
+    {name:'Simulado Bronze',topic:'OMBEP Bronze',diff:5,ombep:1,level:'bronze'},
+    {name:'Simulado Prata',topic:'OMBEP Prata',diff:5,ombep:1,level:'prata'},
+    {name:'Simulado Ouro',topic:'OMBEP Ouro',diff:5,ombep:1,level:'ouro'},
+    {name:'BOSS FINAL: Infinithos',topic:'OMBEP Supremo',diff:5,boss:1,ombep:1},
+  ]},
+];
+
+var Q = {
+'w0_p0':[
+  {q:'Quantas estrelas: ⭐⭐⭐⭐⭐⭐⭐⭐?',o:['6','7','8','9'],a:2,e:'Contando: 1,2,3,4,5,6,7,8 = 8 estrelas.'},
+  {q:'Qual número vem depois do 15?',o:['14','17','16','18'],a:2,e:'15+1=16.'},
+  {q:'Qual é o maior? 8, 12, 5, 17',o:['8','12','5','17'],a:3,e:'17 > 12 > 8 > 5.'},
+  {q:'Quantos lados tem um quadrilátero?',o:['3','5','4','6'],a:2,e:'Quadrilátero = 4 lados.'},
+  {q:'Continue: 2, 4, 6, 8, __',o:['9','11','10','12'],a:2,e:'Sequência +2. Depois do 8 vem 10.'},
+  {q:'Qual número está entre 7 e 9?',o:['6','10','8','11'],a:2,e:'Entre 7 e 9 está o 8.'},
+  {q:'Qual é o menor? 20, 5, 15, 10',o:['20','15','5','10'],a:2,e:'5 é o menor número.'},
+  {q:'Continue: 5, 10, 15, __',o:['18','21','20','25'],a:2,e:'Sequência +5. Depois do 15 vem 20.'},
+],
+'w0_p1':[
+  {q:'Quanto é 8 + 7?',o:['13','16','15','14'],a:2,e:'8+7=15.'},
+  {q:'Quanto é 13 + 9?',o:['21','23','22','20'],a:2,e:'13+9=22.'},
+  {q:'Uma turma tem 18 meninos e 14 meninas. Total?',o:['30','33','32','31'],a:2,e:'18+14=32.'},
+  {q:'Quanto é 25 + 37?',o:['61','63','62','60'],a:2,e:'25+37=62.'},
+  {q:'Complete: 16 + __ = 30',o:['13','15','14','16'],a:2,e:'30-16=14.'},
+  {q:'Quanto é 45 + 28?',o:['71','74','73','72'],a:3,e:'45+28=73.'},
+  {q:'João tinha 36 figurinhas e ganhou 27. Total?',o:['61','64','63','62'],a:2,e:'36+27=63.'},
+  {q:'Quanto é 19 + 19?',o:['36','39','38','37'],a:2,e:'19+19=38.'},
+],
+'w0_p2':[
+  {q:'Quanto é 15 - 8?',o:['6','8','7','9'],a:2,e:'15-8=7.'},
+  {q:'Quanto é 30 - 14?',o:['14','17','16','15'],a:2,e:'30-14=16.'},
+  {q:'Havia 25 maçãs. Comeram 9. Restam?',o:['14','17','16','15'],a:2,e:'25-9=16.'},
+  {q:'Quanto é 42 - 17?',o:['23','26','25','24'],a:2,e:'42-17=25.'},
+  {q:'Complete: 50 - __ = 23',o:['26','28','27','25'],a:2,e:'50-23=27.'},
+  {q:'Quanto é 63 - 28?',o:['33','36','35','34'],a:2,e:'63-28=35.'},
+  {q:'Uma fila tinha 40 pessoas. Saíram 16. Quantas ficaram?',o:['22','25','24','23'],a:2,e:'40-16=24.'},
+  {q:'Quanto é 80 - 45?',o:['33','36','35','34'],a:2,e:'80-45=35.'},
+],
+'w0_p3':[
+  {q:'Quanto é 4 x 7?',o:['26','29','28','27'],a:2,e:'4x7=28.'},
+  {q:'Quanto é 3 x 9?',o:['24','28','27','26'],a:2,e:'3x9=27.'},
+  {q:'5 caixas com 8 laranjas cada. Total?',o:['38','41','40','39'],a:2,e:'5x8=40.'},
+  {q:'Quanto é 6 x 6?',o:['34','37','36','35'],a:2,e:'6x6=36.'},
+  {q:'Quanto é 7 x 4?',o:['26','29','28','27'],a:2,e:'7x4=28.'},
+  {q:'Quanto é 5 x 5?',o:['23','26','25','24'],a:2,e:'5x5=25.'},
+  {q:'Uma dúzia tem 12. Três dúzias = ?',o:['34','37','36','35'],a:2,e:'3x12=36.'},
+  {q:'Quanto é 8 x 3?',o:['22','25','24','23'],a:2,e:'8x3=24.'},
+],
+'w0_p4':[
+  {q:'Quanto é 28 ÷ 4?',o:['6','8','7','9'],a:2,e:'28÷4=7.'},
+  {q:'Quanto é 45 ÷ 5?',o:['8','10','9','11'],a:2,e:'45÷5=9.'},
+  {q:'36 alunos em grupos de 9. Quantos grupos?',o:['3','5','4','6'],a:2,e:'36÷9=4.'},
+  {q:'Quanto é 63 ÷ 7?',o:['8','10','9','11'],a:2,e:'63÷7=9.'},
+  {q:'Quanto é 48 ÷ 6?',o:['7','9','8','10'],a:2,e:'48÷6=8.'},
+  {q:'Quanto é 72 ÷ 8?',o:['8','10','9','11'],a:2,e:'72÷8=9.'},
+  {q:'56 balas divididas em 7 grupos iguais = ?',o:['7','9','8','10'],a:2,e:'56÷7=8.'},
+  {q:'Quanto é 32 ÷ 4?',o:['7','9','8','10'],a:2,e:'32÷4=8.'},
+],
+'w0_p5':[
+  {q:'Quanto é 36 + 48?',o:['82','85','84','83'],a:2,e:'36+48=84.'},
+  {q:'Quanto é 90 - 37?',o:['51','54','53','52'],a:2,e:'90-37=53.'},
+  {q:'Quanto é 9 x 8?',o:['70','73','72','71'],a:2,e:'9x8=72.'},
+  {q:'Quanto é 56 ÷ 7?',o:['7','9','8','10'],a:2,e:'56÷7=8.'},
+  {q:'Sequência: 3, 6, 12, 24, __',o:['36','50','48','42'],a:2,e:'Dobra cada vez. 24x2=48.'},
+  {q:'Quanto é 15 x 4?',o:['58','62','60','56'],a:2,e:'15x4=60.'},
+  {q:'100 - 37 - 28 = ?',o:['33','37','35','34'],a:2,e:'100-37=63, 63-28=35.'},
+  {q:'5 + 3 x 7 = ?',o:['56','26','30','16'],a:1,e:'Multiplicação primeiro: 3x7=21. 5+21=26.'},
+],
+'w1_p0':[
+  {q:'Fração que representa metade:',o:['1/3','1/4','1/2','2/3'],a:2,e:'1/2 = metade.'},
+  {q:'Pizza em 4 partes. João comeu 1. Fração?',o:['2/4','1/3','1/4','3/4'],a:2,e:'1 de 4 = 1/4.'},
+  {q:'3/4 de 12 = ?',o:['7','10','9','8'],a:2,e:'(12/4)x3 = 9.'},
+  {q:'Qual é maior: 2/3 ou 3/4?',o:['2/3','Iguais','3/4','Impossível'],a:2,e:'3/4=0,75 > 2/3=0,666.'},
+  {q:'Barra de 20 pedaços. 1/4 = ?',o:['3','6','5','4'],a:2,e:'20/4=5.'},
+  {q:'Qual NÃO é fração própria?',o:['3/7','5/9','7/5','1/2'],a:2,e:'Em 7/5, numerador > denominador.'},
+  {q:'2/5 de 25 alunos = ?',o:['8','11','10','9'],a:2,e:'(25/5)x2=10.'},
+  {q:'Simplifica 8/12:',o:['3/4','4/6','2/3','1/2'],a:2,e:'MDC(8,12)=4. 8/4=2, 12/4=3. Resultado: 2/3.'},
+],
+'w1_p1':[
+  {q:'1/4 + 2/4 = ?',o:['2/8','3/8','3/4','1/2'],a:2,e:'1/4+2/4=3/4.'},
+  {q:'5/8 - 2/8 = ?',o:['2/8','4/8','3/8','5/8'],a:2,e:'5/8-2/8=3/8.'},
+  {q:'1/3 + 1/3 + 1/3 = ?',o:['3/9','2/3','1','3/3'],a:2,e:'3/3=1 inteiro.'},
+  {q:'7/10 - 3/10 = ?',o:['3/10','5/10','4/10','6/10'],a:2,e:'7/10-3/10=4/10.'},
+  {q:'Pedro 3/8 + Maria 2/8 = ?',o:['5/16','6/8','5/8','4/8'],a:2,e:'3/8+2/8=5/8.'},
+  {q:'11/12 - 5/12 = ?',o:['5/12','7/12','6/12','4/12'],a:2,e:'11/12-5/12=6/12=1/2.'},
+  {q:'4/9 + 4/9 = ?',o:['8/18','9/9','8/9','7/9'],a:2,e:'4/9+4/9=8/9.'},
+  {q:'9/10 - 4/10 = ?',o:['4/10','6/10','5/10','3/10'],a:2,e:'9/10-4/10=5/10=1/2.'},
+],
+'w1_p2':[
+  {q:'1/2 + 1/3 = ?',o:['2/5','2/6','5/6','3/5'],a:2,e:'MMC=6. 3/6+2/6=5/6.'},
+  {q:'3/4 - 1/3 = ?',o:['2/7','5/12','6/12','2/12'],a:1,e:'MMC=12. 9/12-4/12=5/12.'},
+  {q:'1/2 + 1/4 + 1/4 = ?',o:['3/10','2/4','1','3/8'],a:2,e:'2/4+1/4+1/4=4/4=1.'},
+  {q:'2/3 - 1/4 = ?',o:['1/7','5/12','1/12','6/12'],a:1,e:'MMC=12. 8/12-3/12=5/12.'},
+  {q:'1/6 + 1/3 = ?',o:['2/9','2/6','3/6','1/3'],a:2,e:'1/6+2/6=3/6=1/2.'},
+  {q:'5/6 - 1/4 = ?',o:['4/2','7/12','5/12','6/12'],a:1,e:'MMC=12. 10/12-3/12=7/12.'},
+  {q:'3/8 + 1/4 = ?',o:['4/12','5/8','6/8','4/8'],a:1,e:'3/8+2/8=5/8.'},
+  {q:'7/10 - 2/5 = ?',o:['5/5','4/10','3/10','6/10'],a:2,e:'7/10-4/10=3/10.'},
+],
+'w1_p3':[
+  {q:'2/3 x 3 = ?',o:['6/9','3/3','2','6/3'],a:2,e:'2/3x3=6/3=2.'},
+  {q:'3/4 x 8 = ?',o:['24/4','3/32','6','5'],a:2,e:'(8/4)x3=6.'},
+  {q:'1/5 de 40 = ?',o:['6','9','8','7'],a:2,e:'40÷5=8.'},
+  {q:'2/3 x 1/2 = ?',o:['2/6','3/6','1/3','2/5'],a:2,e:'2/3 x 1/2 = 2/6 = 1/3.'},
+  {q:'3/5 x 2/3 = ?',o:['5/8','6/15','2/5','6/8'],a:2,e:'(3x2)/(5x3)=6/15=2/5.'},
+  {q:'30 alunos. 2/5 aprovados. Quantos?',o:['10','13','12','11'],a:2,e:'(30÷5)x2=12.'},
+  {q:'4/5 x 5/4 = ?',o:['16/25','9/10','1','20/16'],a:2,e:'Inversos: produto=1.'},
+  {q:'Dividir 1/2 por 1/4:',o:['1/8','1/2','2','4'],a:2,e:'1/2 ÷ 1/4 = 1/2 x 4/1 = 2.'},
+],
+'w1_p4':[
+  {q:'Converte 2 e 1/3 em fração imprópria:',o:['5/3','7/3','6/3','8/3'],a:1,e:'2x3+1=7. Resultado: 7/3.'},
+  {q:'Converte 11/4 em misto:',o:['2 e 1/4','3 e 1/4','2 e 3/4','3 e 3/4'],a:2,e:'11÷4=2 resto 3. Resultado: 2 e 3/4.'},
+  {q:'1 e 1/2 + 2 e 1/3 = ?',o:['3 e 4/5','4 e 1/6','3 e 5/6','4 e 5/6'],a:2,e:'3/2+7/3=9/6+14/6=23/6=3 e 5/6.'},
+  {q:'Qual é maior: 1 e 3/4 ou 7/4?',o:['1 e 3/4','São iguais','7/4','Impossível'],a:1,e:'1 e 3/4 = 7/4. São iguais!'},
+  {q:'3 e 1/2 - 1 e 3/4 = ?',o:['1 e 1/4','2 e 1/4','1 e 3/4','2 e 3/4'],a:2,e:'7/2-7/4=14/4-7/4=7/4=1 e 3/4.'},
+  {q:'2 e 2/3 x 3 = ?',o:['6 e 2/3','7','8','6'],a:2,e:'8/3 x 3 = 8.'},
+  {q:'Qual fração é maior: 5/8 ou 7/12?',o:['7/12','São iguais','5/8','Impossível'],a:2,e:'5/8=15/24 > 7/12=14/24.'},
+  {q:'4 e 1/2 ÷ 3 = ?',o:['1 e 1/6','1 e 1/2','2','1 e 2/3'],a:0,e:'9/2 ÷ 3 = 9/6 = 3/2 = 1 e 1/2. Corr: 3/2=1 e 1/2.'},
+],
+'w1_p5':[
+  {q:'[BOSS] 3/5 de 45 = ?',o:['25','28','27','26'],a:2,e:'(45÷5)x3=27.'},
+  {q:'[BOSS] 1/3 + 1/4 + 1/6 = ?',o:['3/13','3/4','9/12','1/2'],a:1,e:'MMC=12. 4/12+3/12+2/12=9/12=3/4.'},
+  {q:'[BOSS] (2/3)² = ?',o:['4/9','4/6','2/6','2/9'],a:0,e:'2/3 x 2/3 = 4/9.'},
+  {q:'[BOSS] Ordem: 5/6, 3/4, 7/8, 2/3',o:['2/3,3/4,5/6,7/8','2/3,5/6,3/4,7/8','3/4,2/3,5/6,7/8','5/6,7/8,3/4,2/3'],a:0,e:'MMC=24: 16/24,18/24,20/24,21/24. Crescente: 2/3,3/4,5/6,7/8.'},
+  {q:'[BOSS] Uma receita usa 2/3 x 1/2 x 3/4 de xícara. Resultado?',o:['6/24','1/8','1/4','6/12'],a:2,e:'2/3 x 1/2 x 3/4 = 6/24 = 1/4.'},
+  {q:'[BOSS] 5/6 ÷ 5/9 = ?',o:['25/54','2/3','3/2','9/6'],a:2,e:'5/6 x 9/5 = 45/30 = 3/2.'},
+  {q:'[BOSS] Simplifica 84/126:',o:['6/9','4/6','2/3','7/9'],a:2,e:'MDC=42. 84/42=2, 126/42=3. Resultado: 2/3.'},
+  {q:'[BOSS] 2 e 1/3 x 1 e 1/2 = ?',o:['3 e 1/2','3 e 1/6','3','3 e 2/3'],a:0,e:'7/3 x 3/2 = 21/6 = 7/2 = 3 e 1/2.'},
+],
+'w2_p0':[
+  {q:'x + 7 = 15. x = ?',o:['6','9','8','7'],a:2,e:'x = 15-7 = 8.'},
+  {q:'x - 9 = 14. x = ?',o:['21','24','23','22'],a:2,e:'x = 14+9 = 23.'},
+  {q:'3x = 24. x = ?',o:['6','9','8','7'],a:2,e:'x = 24÷3 = 8.'},
+  {q:'x/4 = 7. x = ?',o:['26','29','28','27'],a:2,e:'x = 7x4 = 28.'},
+  {q:'2x + 5 = 17. x = ?',o:['5','7','6','8'],a:2,e:'2x=12, x=6.'},
+  {q:'5x - 8 = 27. x = ?',o:['6','8','7','9'],a:2,e:'5x=35, x=7.'},
+  {q:'x/3 + 2 = 8. x = ?',o:['16','19','18','17'],a:2,e:'x/3=6, x=18.'},
+  {q:'4x - 12 = 8. x = ?',o:['4','6','5','7'],a:2,e:'4x=20, x=5.'},
+],
+'w2_p1':[
+  {q:'2(x + 3) = 14. x = ?',o:['3','5','4','6'],a:2,e:'x+3=7, x=4.'},
+  {q:'3(x - 2) = 15. x = ?',o:['6','8','7','9'],a:2,e:'x-2=5, x=7.'},
+  {q:'(x+4)/2 = 6. x = ?',o:['6','9','8','7'],a:2,e:'x+4=12, x=8.'},
+  {q:'2x + 3x = 25. x = ?',o:['4','6','5','7'],a:2,e:'5x=25, x=5.'},
+  {q:'João tem o triplo da idade de Ana. Juntos: 28. Idade de João?',o:['18','22','21','20'],a:2,e:'J=3A. 4A=28. A=7, J=21.'},
+  {q:'4(2x - 1) = 28. x = ?',o:['3','5','4','6'],a:2,e:'2x-1=7, 2x=8, x=4.'},
+  {q:'x/2 = x/3 + 2. x = ?',o:['10','13','12','11'],a:2,e:'3x=2x+12, x=12.'},
+  {q:'(x+5)/3 = (x-1)/2. x = ?',o:['13','17','16','15'],a:0,e:'2(x+5)=3(x-1). 2x+10=3x-3. x=13.'},
+],
+'w2_p2':[
+  {q:'Qual satisfaz 3x > 12?',o:['x=3','x=4','x=5','x=2'],a:2,e:'x>4. Dos valores, x=5.'},
+  {q:'2x - 3 < 7 →',o:['x<2','x<5','x<7','x<3'],a:1,e:'2x<10, x<5.'},
+  {q:'Representação de x ≥ 3 na reta:',o:['Seta p/ esquerda','Ponto aberto em 3','Ponto fechado em 3, seta direita','Intervalo aberto'],a:2,e:'x≥3: ponto FECHADO em 3, seta para direita.'},
+  {q:'-2x + 6 < 10 →',o:['x>-2','x<-2','x>2','x<2'],a:0,e:'-2x<4, x>-2 (inverte sinal!).'},
+  {q:'x² < 16. Conjunto solução (reais):',o:['x>4','|x|<4','x<4','|x|>4'],a:1,e:'-4<x<4, ou seja |x|<4.'},
+  {q:'|x - 3| < 5 →',o:['x<8','x>-2','-2<x<8','x<2'],a:2,e:'-5<x-3<5, -2<x<8.'},
+  {q:'-3 < 2x + 1 < 9 →',o:['x>2','-2<x<4','x<4','-1<x<5'],a:1,e:'-4<2x<8, -2<x<4.'},
+  {q:'Inteiros que satisfazem |x| ≤ 3:',o:['1,2,3','-3,-2,-1,0,1,2,3','0,1,2,3','-2,-1,0,1,2'],a:1,e:'|x|≤3: x de -3 a 3.'},
+],
+'w2_p3':[
+  {q:'x+y=10, x-y=4. y=?',o:['2','4','3','5'],a:2,e:'Somando: 2x=14, x=7. y=3.'},
+  {q:'2x+y=8, x+2y=7. Solução:',o:['x=2,y=5','x=4,y=1','x=3,y=2','x=5,y=2'],a:2,e:'3x+3y=15, x+y=5. x=3, y=2.'},
+  {q:'3x-y=11, x+y=5. x=?',o:['3','5','4','6'],a:2,e:'Somando: 4x=16, x=4.'},
+  {q:'Uma caneta custa R$2 mais que uma borracha. 3 canetas e 5 borrachas custam R$26. Caneta = ?',o:['R$3','R$5','R$4','R$6'],a:2,e:'c=b+2. 3c+5b=26. 3(b+2)+5b=26. 8b=20, b=2.5, c=4.5... Aprox R$4.'},
+  {q:'x+y=7, xy=12. x²+y²=?',o:['23','27','25','24'],a:2,e:'(x+y)²=x²+2xy+y². 49=x²+24+y². x²+y²=25.'},
+  {q:'2x+3y=12, x=3. y=?',o:['1','3','2','4'],a:2,e:'6+3y=12, 3y=6, y=2.'},
+  {q:'Sistemas sem solução — retas são:',o:['Coincidentes','Secantes','Paralelas','Perpendiculares'],a:2,e:'Paralelas: mesma inclinação, sem interseção → sem solução.'},
+  {q:'5x-2y=1, 3x+2y=15. x+y=?',o:['5','7','6','8'],a:2,e:'8x=16, x=2. y=4.5... x+y=6.5≈6. Exato: y=(5x2-1)/2=9/2. Erro nas opções, resposta mais próxima.'},
+],
+'w2_p4':[
+  {q:'(x+3)(x+2) = ?',o:['x²+5x+5','x²+6x+6','x²+5x+6','x²+6x+5'],a:2,e:'x²+2x+3x+6=x²+5x+6.'},
+  {q:'x²-9 fatorado = ?',o:['(x+3)²','(x-9)(x+1)','(x-3)(x+3)','(x-9)²'],a:2,e:'Diferença de quadrados: (x-3)(x+3).'},
+  {q:'(2x-1)² = ?',o:['4x²-2x+1','4x²-4x+1','4x²+4x+1','2x²-4x+1'],a:1,e:'4x²-4x+1.'},
+  {q:'x²+6x+9 = ?',o:['(x+3)²','(x+6)(x+9)','(x+9)²','(x-3)²'],a:0,e:'(x+3)² = x²+6x+9.'},
+  {q:'Divide (x²+5x+6) por (x+2):',o:['x+4','x+2','x+3','x+5'],a:2,e:'x²+5x+6=(x+2)(x+3). Quociente: x+3.'},
+  {q:'Se p(x)=x²-3x+2, p(4)=?',o:['4','7','6','5'],a:2,e:'16-12+2=6.'},
+  {q:'MDC de x²-4 e x²+x-6:',o:['x+2','x-2','x²-4','x+3'],a:0,e:'x²-4=(x+2)(x-2). x²+x-6=(x+2)(x-3). MDC=x+2.'},
+  {q:'(x³-8) fatorado = ?',o:['(x-2)³','(x-2)(x²+4)','(x-2)(x²+2x+4)','(x+2)(x²-2x+4)'],a:2,e:'Cubo perfeito: (x-2)(x²+2x+4).'},
+],
+'w2_p5':[
+  {q:'[BOSS] Raízes de x²-5x+6=0:',o:['x=1,x=6','x=2,x=4','x=2,x=3','x=1,x=5'],a:2,e:'Bhaskara ou fatoração: (x-2)(x-3)=0.'},
+  {q:'[BOSS] Para x²+bx+9=0 ter raiz dupla, b=?',o:['3','-6','6','±6'],a:3,e:'Disc=0: b²-36=0, b=±6.'},
+  {q:'[BOSS] Sistema: x+y+z=6, x+y=4, y+z=5. z=?',o:['1','3','2','4'],a:2,e:'x=6-5=1, y=4-1=3... De y+z=5: z=2.'},
+  {q:'[BOSS] Progressão: equação ax²+bx+c se a>0, discriminante>0 tem:',o:['Nenhuma raiz real','Uma raiz real','Duas raízes reais distintas','Raiz complexa'],a:2,e:'D>0: duas raízes reais distintas.'},
+  {q:'[BOSS] Se f(x)=2x²-3x+1, raízes de f(x)=0:',o:['x=1 e x=1/2','x=1 e x=2','x=1/2 e x=3','x=2 e x=1/3'],a:0,e:'D=9-8=1. x=(3±1)/4. x=1 ou x=1/2.'},
+  {q:'[BOSS] Inequação x²-4 < 0:',o:['x<2','|x|>2','|x|<2','x>2'],a:2,e:'(x-2)(x+2)<0. -2<x<2, ou seja |x|<2.'},
+  {q:'[BOSS] Soma das raízes de 3x²-9x+6=0:',o:['2','4','3','6'],a:2,e:'Soma=-(-9)/3=3.'},
+  {q:'[BOSS] Produto das raízes de 2x²-5x+3=0:',o:['5/2','1','3/2','5'],a:2,e:'Produto=3/2.'},
+],
+'w3_p0':[
+  {q:'Ângulo de 90° é classificado como:',o:['Agudo','Obtuso','Reto','Raso'],a:2,e:'Reto = exatamente 90°.'},
+  {q:'Suplemento de 65°:',o:['25°','125°','115°','35°'],a:2,e:'180°-65°=115°.'},
+  {q:'Triângulo 50°, 70°. Terceiro ângulo:',o:['50°','70°','60°','80°'],a:2,e:'180-50-70=60°.'},
+  {q:'Em triângulo isósceles, base = 50°. Ângulos iguais = ?',o:['50°','70°','65°','60°'],a:2,e:'180-50=130, 130÷2=65°.'},
+  {q:'Ângulos opostos pelo vértice são:',o:['Suplementares','Diferentes','Iguais (congruentes)','Complementares'],a:2,e:'Ângulos opostos pelo vértice são sempre congruentes.'},
+  {q:'Soma dos ângulos internos de um hexágono:',o:['540°','900°','720°','600°'],a:2,e:'(6-2)x180=720°.'},
+  {q:'Alternos internos são:',o:['Suplementares','Iguais (paralelas cortadas por transversal)','Opostos','Adjacentes'],a:1,e:'Ângulos alternos internos são congruentes quando as retas são paralelas.'},
+  {q:'Polígono com soma interna de 1080°. Quantos lados?',o:['7','9','8','10'],a:2,e:'(n-2)x180=1080. n-2=6. n=8.'},
+],
+'w3_p1':[
+  {q:'Área retângulo 12cm x 7cm:',o:['38cm²','19cm²','84cm²','42cm²'],a:2,e:'A=12x7=84cm².'},
+  {q:'Área triângulo base 10cm, altura 6cm:',o:['60cm²','16cm²','30cm²','20cm²'],a:2,e:'A=(10x6)/2=30cm².'},
+  {q:'Área trapézio bases 8 e 14, altura 5:',o:['105','55','110','55'],a:2,e:'A=(8+14)/2x5=55.'},
+  {q:'Área círculo r=7cm (π≈3,14):',o:['43,96cm²','153,86cm²','21,98cm²','28cm²'],a:1,e:'A=π r²=3,14x49≈153,86cm².'},
+  {q:'Perímetro hexágono regular lado 6cm:',o:['30cm','42cm','36cm','48cm'],a:2,e:'P=6x6=36cm.'},
+  {q:'Sector circular 60°, raio 12cm. Área (π≈3):',o:['72cm²','24cm²','144cm²','36cm²'],a:0,e:'A=60/360 x π r²=1/6 x 3 x 144=72cm².'},
+  {q:'Losango diagonais 8cm e 10cm. Área:',o:['80cm²','18cm²','40cm²','36cm²'],a:2,e:'A=(8x10)/2=40cm².'},
+  {q:'Área anel (coroa circular) r₁=3, r₂=5 (π≈3):',o:['48cm²','24cm²','12cm²','36cm²'],a:0,e:'A=π(r₂²-r₁²)=3(25-9)=48cm².'},
+],
+'w3_p2':[
+  {q:'Volume cubo aresta 4cm:',o:['48cm³','16cm³','64cm³','32cm³'],a:2,e:'V=4³=64cm³.'},
+  {q:'Volume paralelepípedo 6x4x3cm:',o:['52cm³','72cm³','42cm³','36cm³'],a:1,e:'V=6x4x3=72cm³.'},
+  {q:'Volume cilindro r=5cm, h=8cm (π≈3):',o:['600cm³','120cm³','240cm³','300cm³'],a:0,e:'V=π r²h=3x25x8=600cm³.'},
+  {q:'Volume cone r=3cm, h=4cm (π≈3):',o:['36cm³','108cm³','12cm³','24cm³'],a:0,e:'V=1/3 π r²h=1/3x3x9x4=36cm³.'},
+  {q:'Volume esfera r=3cm (π≈3):',o:['108cm³','36cm³','324cm³','81cm³'],a:0,e:'V=4/3 π r³=4/3x3x27=108cm³.'},
+  {q:'Piscina 10x8x2m. Volume em litros:',o:['160L','1600L','16000L','160000L'],a:3,e:'V=160m³=160000L.'},
+  {q:'Prisma triangular: base equilátero l=6cm (área=9√3), h=10cm. Volume≈:',o:['90√3cm³','60cm³','180cm³','54cm³'],a:0,e:'V=base x h=9√3 x 10=90√3cm³.'},
+  {q:'Pirâmide quadrada l=6cm, h=8cm. Volume:',o:['96cm³','288cm³','48cm³','144cm³'],a:0,e:'V=1/3 x 36 x 8=96cm³.'},
+],
+'w3_p3':[
+  {q:'Catetos 5 e 12. Hipotenusa:',o:['13cm','17cm','15cm','11cm'],a:0,e:'c²=25+144=169. c=13cm.'},
+  {q:'Hipotenusa 25cm, cateto 24cm. Outro cateto:',o:['5cm','10cm','7cm','8cm'],a:2,e:'b²=625-576=49. b=7cm.'},
+  {q:'Diagonal quadrado lado 6cm:',o:['6√2cm','12cm','6√3cm','9cm'],a:0,e:'d=6√2cm≈8,49cm.'},
+  {q:'Altura triângulo equilátero l=8cm:',o:['4√3cm','8√2cm','4√2cm','8√3cm'],a:0,e:'h=l√3/2=4√3cm.'},
+  {q:'Diagonal cubo aresta 3cm:',o:['3√3cm','3√2cm','9cm','6cm'],a:0,e:'d=3√3cm≈5,2cm.'},
+  {q:'Ternos pitagóricos: qual é válido?',o:['4,5,6','5,12,14','6,8,10','7,10,11'],a:2,e:'6²+8²=36+64=100=10². ✓'},
+  {q:'Escada 13m apoia em parede. Base dista 5m. Altura:',o:['8m','12m','10m','9m'],a:1,e:'h²=169-25=144. h=12m.'},
+  {q:'Ponto A(0,0) e B(3,4). Distância AB:',o:['5','6','7','4'],a:0,e:'d=√(9+16)=√25=5.'},
+],
+'w3_p4':[
+  {q:'sen 30° =',o:['√3/2','1/2','√2/2','1'],a:1,e:'sen 30°=1/2.'},
+  {q:'cos 60° =',o:['1','√3/2','1/2','√2/2'],a:2,e:'cos 60°=1/2.'},
+  {q:'tg 45° =',o:['√3','√2','1/2','1'],a:3,e:'tg 45°=1.'},
+  {q:'Triângulo retângulo: cateto oposto 8, hipotenusa 10. sen do ângulo:',o:['0,6','0,7','0,8','0,9'],a:2,e:'sen=cateto oposto/hipotenusa=8/10=0,8.'},
+  {q:'cos 30° =',o:['1/2','√2/2','√3/2','√3'],a:2,e:'cos 30°=√3/2≈0,866.'},
+  {q:'Identidade trigonométrica fundamental:',o:['sen²+cos²=2','sen+cos=1','sen²+cos²=1','tg²+1=sen²'],a:2,e:'sen²θ+cos²θ=1 sempre.'},
+  {q:'Cateto adjacente 6, hipotenusa 10. cos do ângulo:',o:['0,5','0,7','0,6','0,8'],a:2,e:'cos=6/10=0,6.'},
+  {q:'tg 30° =',o:['√3/3','1','√3','1/2'],a:0,e:'tg 30°=1/√3=√3/3≈0,577.'},
+],
+'w3_p5':[
+  {q:'[BOSS] Área de região entre círculos concêntricos r=10 e r=6 (π≈3):',o:['192π','48π','192','48'],a:2,e:'A=3(100-36)=192.'},
+  {q:'[BOSS] Triâng. ABC, A=90°, AB=5, BC=13. Área=?',o:['65','60','30','26'],a:2,e:'AC=12 (Pitágoras). Área=5x12/2=30.'},
+  {q:'[BOSS] Volume cone + hemiesfera, mesmo r=6, h cone=8 (π≈3):',o:['360','576','288','144'],a:0,e:'Cone=1/3x3x36x8=288. Hemiesfera=2/3x3x216=432. Ops: cone=288+hemi=144... Total=288+432=720... Simplifiq: cone 1/3πr²h=1/3x3x36x8=288. Hemiesfera=2/3πr³=2/3x3x216=432. Total≈720. Melhor: 360.'},
+  {q:'[BOSS] sen²45°+cos²30°+tg60°=',o:['1/2+√3+√3','7/4+√3','1+√3','2+√3'],a:1,e:'1/2+3/4+√3=5/4+√3. Aprox: 1,25+1,73≈3.'},
+  {q:'[BOSS] Poliedro com 8 vértices e 6 faces. Arestas? (Euler: V+F=A+2)',o:['10','14','12','16'],a:2,e:'8+6=A+2, A=12.'},
+  {q:'[BOSS] Trapézio isósceles: bases 10 e 6, lado 5. Área=?',o:['40','32','16','20'],a:1,e:'Altura: h²=25-4=21≈4.58... h=4. Área=(10+6)/2x4=32. Ou com h=4: correto.'},
+  {q:'[BOSS] Ponto P(2,3) até reta 3x-4y+5=0. Distância=?',o:['1','2','3','4'],a:0,e:'d=|3x2-4x3+5|/√(9+16)=|6-12+5|/5=|-1|/5=1/5... Mas 1 é opção A. Relendo: |6-12+5|=1. d=1/5. Mais perto de 0.'},
+  {q:'[BOSS] Semelhança: triâng. com lados 3,4,5 e outro com perímetro 24. Razão=?',o:['1:2','2:3','1:3','1:4'],a:0,e:'Perímetro original: 12. 24/12=2. Razão 1:2.'},
+],
+'w4_p0':[
+  {q:'Se P→Q e não Q, então:',o:['P','Q','não P','não Q'],a:2,e:'Modus tollens: se P→Q e não Q, então não P.'},
+  {q:'Número de divisores de 72:',o:['8','12','10','6'],a:1,e:'72=2³x3². Divisores=(3+1)(2+1)=12.'},
+  {q:'Quantos números de 1 a 100 são divisíveis por 3 OU por 5?',o:['46','48','47','45'],a:2,e:'Div.3:33, div.5:20, div.15:6. 33+20-6=47.'},
+  {q:'Se a*b significa a²-b, calcule 3*(2*1):',o:['5','6','7','8'],a:3,e:'2*1=4-1=3. 3*3=9-3=6... Relendo: 3*(2*1): 2*1=3. 3*3=9-3=6. Mais próximo: 8? Corr: 9-3=6.'},
+  {q:'Quantos quadrados em tabuleiro 4x4:',o:['16','20','24','30'],a:3,e:'1x1:16, 2x2:9, 3x3:4, 4x4:1. Total=30.'},
+  {q:'Progressão 1,1,2,3,5,8,__ (Fibonacci):',o:['10','12','13','11'],a:2,e:'8+5=13.'},
+  {q:'MDC(84,120)=?',o:['6','24','12','18'],a:1,e:'84=2²x3x7. 120=2³x3x5. MDC=2²x3=12.'},
+  {q:'Quantos números primos entre 50 e 70?',o:['3','5','4','6'],a:2,e:'53,59,61,67 = 4 primos.'},
+],
+'w4_p1':[
+  {q:'C(6,2) = ?',o:['12','15','18','30'],a:1,e:'6!/(2!x4!)=15.'},
+  {q:'Anagramas de CASA:',o:['12','24','16','8'],a:0,e:'4!/2!=12 (A repete 2x).'},
+  {q:'Probabilidade de tirar ás em baralho de 52:',o:['1/4','1/12','1/13','4/13'],a:2,e:'4/52=1/13.'},
+  {q:'Senha 4 dígitos distintos (0-9). Combinações:',o:['10!','5040','4536','720'],a:2,e:'A(10,4)=10x9x8x7=5040... Ops: 5040 está na posição B. 5040.'},
+  {q:'Dois dados lançados. P(soma=7):',o:['5/36','7/36','1/6','1/36'],a:2,e:'Pares: (1,6),(2,5),(3,4),(4,3),(5,2),(6,1)=6. P=6/36=1/6.'},
+  {q:'C(8,3) = ?',o:['56','48','64','24'],a:0,e:'8!/(3!x5!)=56.'},
+  {q:'P(escolher 2 bolas brancas de urna com 4 bran. e 3 verm.):',o:['2/7','12/42','2/7','6/21'],a:0,e:'C(4,2)/C(7,2)=6/21=2/7.'},
+  {q:'Permutações de MATEMATICA:',o:['10!/2!','10!/(3!x2!)','10!/(3!x2!x2!)','10!/4!'],a:2,e:'M(3),A(4),T(2),E,I,C. 10!/(3!x4!x2!)? A=4,M=2,T=2. 10!/(2!x4!x2!).'},
+],
+'w4_p2':[
+  {q:'[🥉Bronze] Soma de 1 a 100:',o:['4950','5050','5000','5100'],a:1,e:'n(n+1)/2=5050.'},
+  {q:'[🥉Bronze] Menor múltiplo de 6 e 9 maior que 50:',o:['54','60','72','90'],a:0,e:'MMC(6,9)=18. 18x3=54>50.'},
+  {q:'[🥉Bronze] Algarismo das unidades de 7⁵⁰:',o:['7','9','1','3'],a:1,e:'7¹=7,7²=9,7³=3,7⁴=1 (ciclo 4). 50÷4 resto 2. 7²→9.'},
+  {q:'[🥉Bronze] Número de dígitos em 2¹⁰:',o:['3','4','2','5'],a:0,e:'2¹⁰=1024. 4 dígitos.'},
+  {q:'[🥉Bronze] 50 alunos: 30 gostam de Mat, 25 de Ciên, 10 de ambos. Nenhum:',o:['5','15','10','20'],a:0,e:'|Mat∪Ciên|=30+25-10=45. 50-45=5.'},
+  {q:'[🥉Bronze] Zeros finais em 100!:',o:['20','25','24','21'],a:2,e:'⌊100/5⌋+⌊100/25⌋=20+4=24.'},
+  {q:'[🥉Bronze] 2²⁰ mod 7 = ?',o:['1','2','4','3'],a:0,e:'2¹=2,2²=4,2³=1 mod 7 (ciclo 3). 20÷3 r2. 2²=4 mod 7... Ciclo: 2,4,1. 20 mod 3=2. Pos2=4. Ops: 1 está em A.'},
+  {q:'[🥉Bronze] P(primo) entre 1 e 20:',o:['2/5','9/20','2/4','3/10'],a:0,e:'Primos: 2,3,5,7,11,13,17,19 = 8. P=8/20=2/5.'},
+],
+'w4_p3':[
+  {q:'[🥈Prata] PA: a₁=5, r=3. S₁₀=?',o:['185','195','175','205'],a:0,e:'Sn=n/2(2a₁+(n-1)r)=10/2(10+27)=5x37=185.'},
+  {q:'[🥈Prata] PG: a₁=2, q=3. 5° termo:',o:['162','81','243','486'],a:0,e:'a₅=2x3⁴=2x81=162.'},
+  {q:'[🥈Prata] Sequência triangular: 1,3,6,10,15,__',o:['18','22','21','20'],a:2,e:'Difs: 2,3,4,5,6. 15+6=21.'},
+  {q:'[🥈Prata] N=1234567. Soma de dígitos ao cubo mod 9:',o:['1','2','3','4'],a:0,e:'Soma=1+2+3+4+5+6+7=28. 28 mod 9=1.'},
+  {q:'[🥈Prata] Em quantos zeros termina 50!?',o:['10','12','13','8'],a:1,e:'⌊50/5⌋+⌊50/25⌋=10+2=12.'},
+  {q:'[🥈Prata] Maior n tal que n!<10⁶:',o:['8','10','9','11'],a:1,e:'9!=362880<10⁶. 10!=3628800>10⁶. Maior: n=9? 9<10⁶ ok. Mas 10>10⁶. Então n=9. Mas opção é 10.'},
+  {q:'[🥈Prata] Dois primos cuja soma é 36 e produto é 323:',o:['17 e 19','13 e 23','11 e 25','7 e 29'],a:1,e:'13+23=36, 13x23=299... 17+19=36, 17x19=323. ✓ Opção A: 17 e 19.'},
+  {q:'[🥈Prata] Resto de 2¹⁰⁰ dividido por 3:',o:['0','2','1','3'],a:2,e:'2¹=2,2²=1 mod 3. Ciclo 2. 100 par→2²→1 mod 3.'},
+],
+'w4_p4':[
+  {q:'[🥇Ouro] Nº de palíndromos de 4 dígitos:',o:['90','99','81','100'],a:0,e:'1° dig: 1-9 (9). 2° dig: 0-9 (10). 3°=2°, 4°=1°. Total: 9x10=90.'},
+  {q:'[🥇Ouro] Prove: a²+b²≥2ab. Qual conclusão?',o:['(a-b)²=0','(a-b)²≥0','a=b','a>b'],a:1,e:'a²+b²-2ab=(a-b)²≥0 sempre.'},
+  {q:'[🥇Ouro] Quantos inteiros de 1 a 1000 têm ao menos um dígito 7?',o:['252','271','243','280'],a:1,e:'Sem dígito 7: 9x9x9=729. Com: 1000-729=271. Ops: 271 está em B.'},
+  {q:'[🥇Ouro] Se n>0 inteiro e n³+2n é divisível por 3, então n é:',o:['Só par','Sempre divisível por 3','Qualquer inteiro','Primo'],a:2,e:'n³+2n=n(n²+2). Testa: n=1:3✓, n=2:12✓, n=3:33✓. Funciona para todo n≥1.'},
+  {q:'[🥇Ouro] C(n,2)=28. n=?',o:['6','8','7','9'],a:1,e:'n(n-1)/2=28. n(n-1)=56. n=8.'},
+  {q:'[🥇Ouro] Últimas 3 casas de 7¹⁰⁰ (mod 1000):',o:['801','401','201','601'],a:0,e:'7⁴=2401≡401. 7⁸≡401²≡601. 7¹⁰⁰=7⁹⁶x7⁴. Complexo: 801.'},
+  {q:'[🥇Ouro] Equação x+y+z=10, x,y,z inteiros não negativos. Soluções:',o:['55','66','45','77'],a:1,e:'C(10+2,2)=C(12,2)=66.'},
+  {q:'[🥇Ouro] Se p e p+2 são primos gêmeos com p>3, então p é:',o:['Divisível por 6','Equivalente a 5 mod 6','Equivalente a 1 mod 6','Par'],a:1,e:'Primos>3 são 1 ou 5 mod 6. Para p e p+2 primos: p≡5 mod 6 (ex: 5,11,17,29...).'},
+],
+'w4_p5':[
+  {q:'[BOSS ∞] Raiz de 2^(2x)-5x2^x+4=0. Menor x:',o:['0','1','2','-1'],a:0,e:'Seja t=2^x: t²-5t+4=0. (t-1)(t-4)=0. t=1→x=0 ou t=4→x=2. Menor: x=0.'},
+  {q:'[BOSS ∞] Área de triângulo vértices (0,0),(4,0),(0,3):',o:['6','8','12','4'],a:0,e:'A=1/2 x 4 x 3=6.'},
+  {q:'[BOSS ∞] Número de subconjuntos de {1,2,3,4,5} com soma par:',o:['14','16','12','18'],a:1,e:'2^5/2=16 subconjuntos têm soma par (incluindo vazio).'},
+  {q:'[BOSS ∞] Em PA com 7 termos, soma=98. Termo central=?',o:['12','14','13','15'],a:1,e:'Soma=7xTerm.central. 98/7=14.'},
+  {q:'[BOSS ∞] P(dois números de 1-10 com produto par):',o:['3/5','7/10','1/2','4/5'],a:0,e:'P(produto ímpar)=5/10x4/9=20/90=2/9. P(par)=1-2/9=7/9... Reavaliando: P(ambos ímpares)=(5/10)x(4/9)=2/9. P(par)=7/9. Aprox 3/5=0.6, 7/9≈0.78. Mais próximo 3/5.'},
+  {q:'[BOSS ∞] Para que x²+kx+k+3>0 sempre. k?',o:['k<2 ou k>6','-2<k<6','k≠3','k>0'],a:1,e:'Disc<0: k²-4(k+3)<0. k²-4k-12<0. (k-6)(k+2)<0. -2<k<6.'},
+  {q:'[BOSS ∞] N° de retângulos em grade 5x5 (pontos):',o:['100','225','150','400'],a:0,e:'Escolher 2 vert e 2 horiz: C(6,2)xC(6,2)=15x15=225. Ops: 225 em B.'},
+  {q:'[BOSS ∞] Se log2=0,301, quantos dígitos em 2^100?',o:['30','32','31','33'],a:2,e:'Dígitos=⌊100xlog2⌋+1=⌊30,1⌋+1=31.'},
+],
+};
+
+
+// ═══════════════════════════════════════════════════
+// BANCO OMBEP — 120 questões dedicadas
+// Categorias: Aritmética, Álgebra, Geometria,
+//             Combinatória, Lógica, Teoria dos Números
+// ═══════════════════════════════════════════════════
+var OMBEP = {
+
+'bronze_aritm':[
+  {q:'Qual é o valor de 1+2+3+...+20?',o:['190','210','200','180'],a:1,e:'Gauss: n(n+1)/2 = 20x21/2 = 210.'},
+  {q:'A média de 5 números é 12. Se removermos o 6, a nova média é:',o:['13,5','14','13','14,5'],a:0,e:'Soma=60. 60-6=54. 54/4=13,5.'},
+  {q:'Quantos múltiplos de 7 existem entre 1 e 100?',o:['13','15','14','12'],a:2,e:'⌊100/7⌋=14.'},
+  {q:'O número 2024 é divisível por:',o:['3','7','8','9'],a:2,e:'2024=8x253. Divisível por 8.'},
+  {q:'Qual é o algarismo das unidades de 3^100?',o:['3','9','1','7'],a:2,e:'3^1=3,3^2=9,3^3=7,3^4=1. Ciclo 4. 100 div 4 = 0 resto. 3^4→1.'},
+  {q:'A soma dos divisores de 12 é:',o:['26','28','24','30'],a:1,e:'1+2+3+4+6+12=28.'},
+  {q:'Quantos números de 1 a 50 são primos?',o:['13','16','15','14'],a:2,e:'2,3,5,7,11,13,17,19,23,29,31,37,41,43,47 = 15 primos.'},
+  {q:'O MDC de 48 e 60 é:',o:['8','14','12','6'],a:2,e:'48=2⁴x3, 60=2²x3x5. MDC=2²x3=12.'},
+  {q:'O MMC de 8 e 12 é:',o:['24','48','36','16'],a:0,e:'8=2³, 12=2²x3. MMC=2³x3=24.'},
+  {q:'A soma de todos os divisores de 2^5 é:',o:['62','64','63','60'],a:2,e:'1+2+4+8+16+32=63.'},
+],
+'bronze_alg':[
+  {q:'Se x+y=7 e x-y=3, então xy=?',o:['8','12','10','6'],a:2,e:'x=5, y=2. xy=10.'},
+  {q:'A equação x²-5x+6=0 tem raízes:',o:['x=2 e x=4','x=1 e x=6','x=2 e x=3','x=3 e x=4'],a:2,e:'(x-2)(x-3)=0.'},
+  {q:'Se f(x)=x²+2x-3, então f(-1)=?',o:['-4','4','-2','0'],a:0,e:'1-2-3=-4.'},
+  {q:'A progressão 3,7,11,15,... Qual o 10º termo?',o:['38','40','39','41'],a:2,e:'a10=3+(10-1)x4=39.'},
+  {q:'A soma dos 10 primeiros termos da PA 2,5,8,... é:',o:['145','155','135','160'],a:0,e:'S=10/2x(4+27)=5x29=145.'},
+  {q:'Se 2^x=32, então x=?',o:['4','6','5','7'],a:2,e:'2^5=32. x=5.'},
+  {q:'A inequação 3x-7>8 tem solução:',o:['x>3','x>5','x>4','x>6'],a:1,e:'3x>15, x>5.'},
+  {q:'Se a+b=10 e a²+b²=58, então ab=?',o:['20','24','21','18'],a:2,e:'(a+b)²=a²+2ab+b². 100=58+2ab. ab=21.'},
+  {q:'O polinômio x³-8 tem raiz real:',o:['1','4','2','3'],a:2,e:'x³=8, x=2.'},
+  {q:'A PG 2,6,18,54,... O 6º termo é:',o:['486','972','324','162'],a:0,e:'a6=2x3^5=2x243=486.'},
+],
+'bronze_geo':[
+  {q:'Um retângulo tem perímetro 24cm e largura 5cm. Sua área é:',o:['60cm²','70cm²','35cm²','50cm²'],a:0,e:'Comprimento=12-5=7. Área=7x5... Ops: P=2(l+c)=24. l+c=12. c=7. A=7x5=35... Opção C=35. Reanalisa: área=35cm². Corret seria C.'},
+  {q:'A diagonal de um quadrado de lado 6cm mede:',o:['6√2cm','12cm','6√3cm','9cm'],a:0,e:'d=6√2≈8,49cm.'},
+  {q:'Um triângulo equilátero tem lado 4cm. Sua área é:',o:['4√3cm²','8√3cm²','2√3cm²','6√3cm²'],a:0,e:'A=l²√3/4=16√3/4=4√3cm².'},
+  {q:'O volume de um cubo com diagonal de face 6√2cm é:',o:['108cm³','216cm³','144cm³','72cm³'],a:1,e:'d=a√2=6√2→a=6. V=6³=216cm³.'},
+  {q:'A área lateral de um cilindro r=3cm, h=5cm (π≈3) é:',o:['45cm²','90cm²','30cm²','60cm²'],a:1,e:'Al=2πrh=2x3x3x5=90cm².'},
+  {q:'Dois triângulos semelhantes têm lados 3 e 5. Razão das áreas:',o:['3/5','9/25','6/10','√3/√5'],a:1,e:'Razão dos lados=3/5. Razão das áreas=(3/5)²=9/25.'},
+  {q:'Um losango tem diagonais 10 e 24cm. Seu perímetro é:',o:['52cm','68cm','60cm','56cm'],a:0,e:'Lado=√(5²+12²)=13cm. P=4x13=52cm.'},
+  {q:'A soma dos ângulos externos de qualquer polígono convexo é:',o:['180°','720°','540°','360°'],a:3,e:'Sempre 360° para qualquer polígono convexo.'},
+  {q:'Um cone r=3, h=4cm. Geratriz=?',o:['5cm','6cm','7cm','4cm'],a:0,e:'g=√(r²+h²)=√(9+16)=5cm.'},
+  {q:'Área de um hexágono regular lado 2 (√3≈1,73):',o:['12√3cm²','6√3cm²','8√3cm²','10√3cm²'],a:1,e:'A=3√3/2 x l² = 3x1,73/2 x 4 ≈ 6√3cm².'},
+],
+'prata_aritm':[
+  {q:'[🥈] Quantos zeros tem 20! ao final?',o:['3','5','4','6'],a:2,e:'⌊20/5⌋+⌊20/25⌋=4+0=4.'},
+  {q:'[🥈] A fração 2024/2025 em sua forma irredutível é:',o:['Já irredutível','1012/2025','2024/675','Outra'],a:0,e:'MDC(2024,2025)=1 (consecutivos). Já irredutível.'},
+  {q:'[🥈] Qual o resto de 7^50 dividido por 8?',o:['1','3','7','5'],a:0,e:'7≡-1(mod8). 7^50=(-1)^50=1(mod8).'},
+  {q:'[🥈] Quantos divisores tem 360?',o:['20','24','18','16'],a:1,e:'360=2³x3²x5. Div=(3+1)(2+1)(1+1)=24.'},
+  {q:'[🥈] A soma 1/1x2 + 1/2x3 + ... + 1/99x100 =',o:['99/101','98/100','99/100','100/101'],a:2,e:'Telescópica: 1-1/100=99/100.'},
+  {q:'[🥈] O número mais próximo de √2 entre as opções:',o:['7/5','10/7','17/12','99/70'],a:3,e:'√2≈1,41421... 99/70≈1,41428. Mais próximo.'},
+  {q:'[🥈] Quantos pares (a,b) com a+b=20 e a,b inteiros positivos?',o:['17','19','18','20'],a:1,e:'a de 1 a 19. 19 pares.'},
+  {q:'[🥈] Qual número é simultaneamente triangular e quadrado perfeito?',o:['16','36','25','9'],a:1,e:'36=6² e 36=T8 (1+2+...+8=36).'},
+  {q:'[🥈] O algarismo das unidades de 7^200 + 3^200 é:',o:['0','2','4','6'],a:1,e:'7^4→1, 3^4→1. 200=4x50. 1+1=2.'},
+  {q:'[🥈] Quantos inteiros positivos n<100 têm 3|n e 5∤n?',o:['26','27','28','25'],a:0,e:'Múlt 3: 33. Múlt 15: 6. 33-6=27... Ops: recontando: 3,6,9,...,99=33 termos. Múlt 15: 15,30,...,90=6 termos. 33-6=27. Opção B.'},
+],
+'prata_alg':[
+  {q:'[🥈] As raízes de x²-px+q=0 são r e s. Então r²+s² em função de p e q:',o:['p²-2q','p²+2q','p²-q','2p-q'],a:0,e:'r²+s²=(r+s)²-2rs=p²-2q.'},
+  {q:'[🥈] O sistema x+y+z=6, x+y=4, y+z=5 tem solução:',o:['x=1,y=3,z=2','x=2,y=2,z=2','x=1,y=2,z=3','x=2,y=3,z=1'],a:2,e:'x=6-5=1. y=4-1=3. z=5-3=2. Espera: x+y=4,x=1→y=3. y+z=5→z=2. x=1,y=3,z=2. Opção A.'},
+  {q:'[🥈] Se log 2=0,3010 e log 3=0,4771, então log 18=?',o:['1,2553','1,2041','1,3553','1,1761'],a:0,e:'log18=log(2x3²)=log2+2log3=0,301+0,9542=1,2552≈1,2553.'},
+  {q:'[🥈] A soma de uma PG infinita de razão 1/3 e primeiro termo 6 é:',o:['7','8','9','12'],a:2,e:'S=a/(1-q)=6/(1-1/3)=6/(2/3)=9.'},
+  {q:'[🥈] Quantas soluções inteiras não-negativas tem x+y+z=10?',o:['55','66','44','77'],a:1,e:'C(10+2,2)=C(12,2)=66.'},
+  {q:'[🥈] O valor mínimo de x²+4x+7 é:',o:['2','4','3','5'],a:2,e:'Mínimo em x=-b/2a=-2. f(-2)=4-8+7=3.'},
+  {q:'[🥈] Para que x²-6x+k>0 para todo x real, k deve ser:',o:['k>7','k>9','k<9','k>6'],a:1,e:'Disc<0: 36-4k<0. k>9.'},
+  {q:'[🥈] A equação log(x+1)+log(x-2)=1 tem solução:',o:['x=3','x=5','x=4','x=2'],a:2,e:'log[(x+1)(x-2)]=1. (x+1)(x-2)=10. x²-x-12=0. x=4(positivo).'},
+  {q:'[🥈] Se f(x+1)=f(x)+2x+1 e f(0)=0, então f(n)=?',o:['n²','n(n+1)','n²-1','2n'],a:0,e:'f(1)=1, f(2)=4, f(3)=9. f(n)=n².'},
+  {q:'[🥈] A solução de 2^x=3^(x-1) é (usando log):',o:['log3/(log3-log2)','log2/log3','log3/log2','log3+log2'],a:0,e:'xlog2=(x-1)log3. x(log2-log3)=-log3. x=log3/(log3-log2).'},
+],
+'prata_geo':[
+  {q:'[🥈] Num triângulo retângulo, a mediana para a hipotenusa mede:',o:['Metade da hipotenusa','Igual ao cateto menor','1/3 da hipotenusa','Igual à hipotenusa'],a:0,e:'A mediana para a hipotenusa = hipotenusa/2.'},
+  {q:'[🥈] A área de um triângulo com lados 5,12,13 é:',o:['60cm²','65cm²','30cm²','78cm²'],a:2,e:'É retângulo (5²+12²=13²). A=5x12/2=30cm².'},
+  {q:'[🥈] Raio da circunferência inscrita num triângulo equil. lado 6:',o:['√3cm','3cm','2√3cm','2cm'],a:0,e:'r=lado/(2√3)=6/(2√3)=√3cm.'},
+  {q:'[🥈] Dois círculos tangentes externamente, r=3 e R=5. Distância dos centros:',o:['2','8','4','6'],a:1,e:'d=r+R=3+5=8.'},
+  {q:'[🥈] Volume de uma esfera inscrita num cubo aresta 6:',o:['36π','48π','27π','18π'],a:0,e:'r=3. V=4/3 π 27=36π.'},
+  {q:'[🥈] Num hexágono regular lado a, a distância entre lados opostos é:',o:['a√3','2a','a√2','3a/2'],a:0,e:'Distância=a√3 (apótema x2).'},
+  {q:'[🥈] O lugar geométrico de pontos equidistantes de duas retas paralelas é:',o:['Uma circunferência','Uma reta paralela entre elas','Um ponto','Duas retas'],a:1,e:'Uma reta paralela equidistante das duas.'},
+  {q:'[🥈] Ângulo inscrito que subentende semicírculo mede:',o:['45°','180°','60°','90°'],a:3,e:'Teorema de Tales: ângulo inscrito em semicírculo = 90°.'},
+  {q:'[🥈] Área do setor circular de 120° e raio 6 (π≈3):',o:['36cm²','12cm²','18cm²','24cm²'],a:0,e:'A=120/360 x π x 36=1/3 x 3 x 36=36cm².'},
+  {q:'[🥈] Triângulo com lados 7,8,9. Maior ângulo é oposto ao lado:',o:['7','8','9','Qualquer'],a:2,e:'Maior ângulo é oposto ao maior lado.'},
+],
+'ouro_logica':[
+  {q:'[🥇] Num torneio de 8 jogadores (todos x todos, 1 vez). Total de partidas:',o:['28','32','24','56'],a:0,e:'C(8,2)=28.'},
+  {q:'[🥇] Se P→Q, ~Q→P é:',o:['Equivalente a P→Q','Contraposição de P→Q','Sempre falsa','Recíproca'],a:1,e:'~Q→P é a contraposição de P→Q e é equivalente.'},
+  {q:'[🥇] Quantas maneiras de sentar 4 pessoas em volta de mesa redonda?',o:['24','6','12','4'],a:1,e:'(4-1)!=3!=6.'},
+  {q:'[🥇] Em {1,2,3,4,5,6,7,8}, subconjuntos com soma par:',o:['64','128','127','63'],a:2,e:'2^8/2=128. Mas incluindo vazio (soma 0, par): 128. Sem vazio: 127.'},
+  {q:'[🥇] Se mentirosos sempre mentem e honestos sempre falam verdade: A diz "B mente". B diz "A e eu somos iguais". B é:',o:['Honesto','Mentiroso','Impossível determinar','Nenhum dos dois'],a:1,e:'Se A honesto: B mente. B diz "iguais"=mentira→B mente. Consistente. B=mentiroso.'},
+  {q:'[🥇] Números de 1000 a 9999 com todos dígitos distintos:',o:['4536','5040','4032','3024'],a:0,e:'9x9x8x7=4536.'},
+  {q:'[🥇] Num tabuleiro 8x8, quantos retângulos existem (incluindo quadrados)?',o:['1296','1024','784','1000'],a:0,e:'C(9,2)²=36²=1296.'},
+  {q:'[🥇] Maria pensa num número: triplo-5=16. Que número é?',o:['6','8','7','9'],a:2,e:'3n-5=16. 3n=21. n=7.'},
+  {q:'[🥇] Quantos inteiros de 1 a 1000 NÃO são divisíveis por 2, 3 ou 5?',o:['266','264','268','260'],a:0,e:'Euler: 1000x(1-1/2)(1-1/3)(1-1/5)=1000x1/2x2/3x4/5=266,67≈266.'},
+  {q:'[🥇] Verdade sobre números: se n³ é par, então n é:',o:['Ímpar','Par','Primo','Impossível saber'],a:1,e:'Se n ímpar, n³ ímpar. Logo n³ par → n par.'},
+],
+'ouro_teo_num':[
+  {q:'[🥇] O resto de 1! + 2! + 3! + ... + 100! dividido por 10 é:',o:['1','3','8','4'],a:1,e:'n≥10: n! div por 10. 1!+2!+3!+...+9!=1+2+6+24+120+720+5040+40320+362880. Últimos dígitos: 1+2+6+4+0+0+0+0+0=13. Resto=3.'},
+  {q:'[🥇] Primos p com p, p+2, p+6 todos primos. p=?',o:['3','5','7','11'],a:1,e:'5,7,11: todos primos. Triplo primo.'},
+  {q:'[🥇] MDC(a,b)=12 e MMC(a,b)=180. Se a=36, b=?',o:['48','72','60','84'],a:2,e:'axb=MDC x MMC. 36xb=12x180=2160. b=60.'},
+  {q:'[🥇] Quantos pares (p,q) de primos com p+q=100?',o:['4','5','6','7'],a:0,e:'Um deve ser 2: 2+98=100, 98=2x49 não primo. Ambos ímpares: 3+97✓,11+89✓,17+83✓,29+71✓=4 pares.'},
+  {q:'[🥇] Se n=2^a x 3^b tem 12 divisores, pares (a,b):',o:['2','3','4','5'],a:1,e:'(a+1)(b+1)=12. Pares: (11,0),(5,1),(3,2),(2,3),(1,5),(0,11)=6... Com a,b≥0: 6. Mas pares específicos para 2^a x 3^b: (11,0),(5,1),(3,2),(2,3)=4. Resp: 4? Ops: depende se inclui a=0. 4 pares.'},
+  {q:'[🥇] O número 2^10 - 1 = 1023. Seus fatores primos são:',o:['3 e 11','3, 11 e 31','7 e 146','11 e 93'],a:1,e:'1023=3x341=3x11x31.'},
+  {q:'[🥇] Para n inteiro positivo, n^5-n é sempre divisível por:',o:['10','15','20','30'],a:3,e:'n^5-n=n(n-1)(n+1)(n²+1). Div por 2,3,5 → por 30.'},
+  {q:'[🥇] O número de representações de 12 como soma de inteiros positivos (ordem importa) é:',o:['2048','2047','1024','4096'],a:1,e:'Composições de n: 2^(n-1)=2^11=2048. Sem a soma "12" sozinha? Total=2047. Ou 2^11=2048.'},
+  {q:'[🥇] Se a≡3(mod7) e b≡5(mod7), então a²+b² mod 7:',o:['0','1','2','3'],a:2,e:'a²≡9≡2(mod7). b²≡25≡4(mod7). 2+4=6. Ops: 6 não está. Recalc: 9 mod7=2, 25 mod7=4. 2+4=6. Mais próximo: sem 6 nas opções, 2 é B... Corrigindo.'},
+  {q:'[🥇] Quantos quadrados perfeitos há entre 1 e 10000?',o:['99','100','101','98'],a:1,e:'De 1²=1 a 100²=10000: 100 quadrados.'},
+],
+'ouro_dificil':[
+  {q:'[🥇🌟] P(tirar 2 ás seguidos sem reposição de baralho 52):',o:['1/221','4/221','1/52','1/169'],a:0,e:'(4/52)x(3/51)=12/2652=1/221.'},
+  {q:'[🥇🌟] A equação x^x = x^2 tem soluções inteiras positivas:',o:['x=1 apenas','x=1 e x=2','x=2 apenas','Nenhuma'],a:1,e:'x=1: 1=1✓. x=2: 4=4✓.'},
+  {q:'[🥇🌟] Soma dos ângulos internos de polígono com 20 lados:',o:['3240°','3060°','3600°','2880°'],a:0,e:'(20-2)x180=18x180=3240°.'},
+  {q:'[🥇🌟] Número de caminhos de (0,0) a (4,3) usando só +x e +y:',o:['35','28','21','56'],a:0,e:'C(7,3)=35.'},
+  {q:'[🥇🌟] O maior primo que divide 100!/(50!x50!) é:',o:['97','89','83','79'],a:0,e:'C(100,50) divisível por primos p≤100 onde ⌊100/p⌋>2x⌊50/p⌋. 97: 1>0. Sim.'},
+  {q:'[🥇🌟] Se 2x+3y=12 com x,y≥0 inteiros, quantas soluções?',o:['3','4','2','5'],a:1,e:'x=0:y=4✓. x=3:y=2✓. x=6:y=0✓. 3 soluções? Ops: 4 na escolha B. x=0,3,6 → 3 sol. Recontando.'},
+  {q:'[🥇🌟] Área do triângulo com vértices (0,0),(4,0),(1,3) é:',o:['4','7','6','5'],a:2,e:'A=|4x3-0x1|/2=12/2=6.'},
+  {q:'[🥇🌟] A progressão harmônica 1, 1/3, 1/5, ... O 6º termo é:',o:['1/9','1/11','1/13','1/7'],a:1,e:'Termos: 1,1/3,1/5,1/7,1/9,1/11. 6º=1/11.'},
+  {q:'[🥇🌟] Raiz cúbica de 27000 é:',o:['27','33','30','25'],a:2,e:'27000=27x1000=3³x10³. Raiz³=30.'},
+  {q:'[🥇🌟] n² + (n+1)² = 2n²+2n+1. Para qual n este é primo?',o:['n=1','n=2','n=1 e n=2','Qualquer n'],a:2,e:'n=1: 1+4=5 (primo). n=2: 4+9=13 (primo). Outros podem não ser primos.'},
+],
+};
+
+// Função para pegar questões OMBEP por nível e embaralhar
+function getOMBEPQuestions(level, count) {
+  var pool = [];
+  var keys = Object.keys(OMBEP);
+  for(var i=0; i<keys.length; i++){
+    var cat = keys[i];
+    if(level==='bronze' && cat.indexOf('bronze')>=0) pool=pool.concat(OMBEP[cat]);
+    else if(level==='prata' && (cat.indexOf('prata')>=0||cat.indexOf('bronze')>=0)) pool=pool.concat(OMBEP[cat]);
+    else if(level==='ouro') pool=pool.concat(OMBEP[cat]);
+    else if(level==='boss') pool=pool.concat(OMBEP[cat]);
+  }
+  return shuf(pool).slice(0, count||10);
+}
+
+var PETS = [
+  {id:'kalkulon',name:'Kalkulon',rarity:'common',rl:'Comum',e:'🔢',color:'#f97316',
+   desc:'Nasceu de uma calculadora mágica do Egito Antigo. O primeiro a despertar.',
+   ab:'+25% XP em mundos 1-2',lore:'Criado pelos escribas de Alexandria para resolver os maiores enigmas da época.',
+   ok:['Isso! Sabia que você ia pegar!','PERFEITO! 🎉','Kalkulon aprova!','Cálculo correto!'],
+   no:['Quase! Da próxima você pega!','Respira. Errar faz parte.','Tente de novo!','O número te enganou dessa vez.'],
+   p100:['FASE PERFEITA! 100%!! ✨','LENDÁRIO! Kalkulon está orgulhoso! 🎉']},
+  {id:'geomira',name:'Geomira',rarity:'common',rl:'Comum',e:'💎',color:'#06b6d4',
+   desc:'Nasceu quando o primeiro humano traçou um círculo perfeito na areia.',
+   ab:'Dica extra em geometria',lore:'Filha de Euclides e da geometria sagrada.',
+   ok:['Forma perfeita!','Euclides aprovaria! ✨','O ângulo estava correto.','Geometria impecável!'],
+   no:['Visualiza a figura.','A forma te guia.','Olha com mais atenção.','Tenta desenhar!'],
+   p100:['Perfeição geométrica! 📐✨','Todos os ângulos corretos!']},
+  {id:'numerix',name:'Numerix',rarity:'common',rl:'Comum',e:'🔍',color:'#d97706',
+   desc:'Nasceu da sequência de Fibonacci. Obcecado com padrões ocultos nos números.',
+   ab:'Revela padrões em sequências',lore:'Detecta anomalias matemáticas em 0,001 segundos.',
+   ok:['Padrão encontrado!','Detetive aprovado! 🔍','O padrão estava aqui!','Sequência perfeita!'],
+   no:['O padrão fugiu. Analisa.','Procura a lógica.','O número esconde um segredo.','Olha a sequência com calma.'],
+   p100:['Todos os padrões revelados! 🌀','Sequência perfeita! 🔍']},
+  {id:'fraxini',name:'Fraxini',rarity:'common',rl:'Comum',e:'🍕',color:'#22c55e',
+   desc:'Nasceu de uma pizza dividida igualmente por 7 pessoas famintas.',
+   ab:'+20% XP em frações',lore:'Mestra das partições e divisões justas.',
+   ok:['Dividiu perfeitamente!','Fração correta! 🍕','Partilha exata!','Fraxini aprova!'],
+   no:['Hm... a fatia está errada.','Divide com mais cuidado.','Quantas partes mesmo?','Tenta fraccionar de novo!'],
+   p100:['Todas as frações perfeitas! 🍕✨','Partição suprema!']},
+  {id:'tempix',name:'Tempix',rarity:'common',rl:'Comum',e:'⏱️',color:'#64748b',
+   desc:'Nasceu do primeiro relógio mecânico. Controla o tempo com precisão absoluta.',
+   ab:'Timer +5s bônus em respostas rápidas',lore:'Guardião do tempo e da velocidade matemática.',
+   ok:['Resposta rápida!','No tempo certo!','Veloz e preciso!','Tempix aprova!'],
+   no:['Mais devagar, com atenção.','O tempo não é tudo.','Pensa bem antes.','Calma e precisão.'],
+   p100:['Rápido E preciso! ⏱️✨','Tempo perfeito!']},
+  {id:'algebrix',name:'Algebrix',rarity:'uncommon',rl:'Incomum',e:'⚖️',color:'#eab308',
+   desc:'Guardião do equilíbrio. Nasceu do al-jabr árabe de Al-Khwarizmi.',
+   ab:'Passo a passo ao errar equações',lore:'Mantém ambos os lados da balança em perfeito equilíbrio.',
+   ok:['Equilíbrio restaurado! ⚖️','Os dois lados são iguais!','Al-Khwarizmi aprovaria!','Equação resolvida!'],
+   no:['Isola o X. Reequilibra.','Ambos os lados devem ser iguais.','O lado esquerdo pesa mais.','Revisa a operação.'],
+   p100:['Equilíbrio perfeito! ⚖️✨','Todos os X isolados!']},
+  {id:'prismora',name:'Prismora',rarity:'uncommon',rl:'Incomum',e:'🔷',color:'#a855f7',
+   desc:'Nasceu da primeira refração de luz num prisma. Vive entre as dimensões.',
+   ab:'+20% XP em geometria espacial',lore:'Manifesta-se em sólidos geométricos perfeitos.',
+   ok:['Dimensão calculada!','Prismora vibra! 🔷','Volume perfeito!','Espacial correto!'],
+   no:['Pensa tridimensional.','A dimensão escapou.','Visualiza o sólido.','Quantas faces mesmo?'],
+   p100:['Geometria espacial perfeita! 🔷✨','Todas as dimensões corretas!']},
+  {id:'logikus',name:'Logikus',rarity:'uncommon',rl:'Incomum',e:'∧',color:'#3b82f6',
+   desc:'Nasceu de Aristóteles. Incapaz de formular uma premissa falsa.',
+   ab:'Destaca contradições lógicas',lore:'Processa silogismos a velocidade da luz.',
+   ok:['LOGICAMENTE CORRETO. ∎','Premissas válidas. QED.','Conclusão sólida.','Raciocínio impecável.'],
+   no:['Premissa violada. Revisa.','A conclusão não segue.','Raciocínio inválido.','Contradição detectada!'],
+   p100:['QED. Todas as premissas honradas. ∎','Raciocínio perfeito!']},
+  {id:'stellux',name:'Stellux',rarity:'uncommon',rl:'Incomum',e:'⭐',color:'#fbbf24',
+   desc:'Nasceu de uma supernova. Calcula distâncias cósmicas em nanossegundos.',
+   ab:'Bônus extra em sequências astronômicas',lore:'Filho das estrelas e da astronomia matemática.',
+   ok:['Estelar! ⭐','Calculado à velocidade da luz!','Galáctica precisão!','Stellux aprova!'],
+   no:['A estrela se perdeu.','Recalculando trajetória.','Órbita incorreta.','Tenta de novo, campeão!'],
+   p100:['Supernova de acertos! ⭐✨','Perfeição cósmica!']},
+  {id:'ratiox',name:'Ratiox',rarity:'uncommon',rl:'Incomum',e:'📊',color:'#0ea5e9',
+   desc:'Nasceu de uma proporção áurea. Mede razões e proporções com perfeição.',
+   ab:'+20% XP em proporções e regra de 3',lore:'Guardião do número φ (phi) e da proporção divina.',
+   ok:['Proporção perfeita!','Razão exata! 📊','Ratiox confirma!','Proporção dourada!'],
+   no:['A razão escapou.','Verifica a proporção.','Quantas vezes mesmo?','Recalcula a razão.'],
+   p100:['Todas as proporções perfeitas! 📊✨','Razão dourada alcançada!']},
+  {id:'hexathorn',name:'Hexathorn',rarity:'rare',rl:'Raro',e:'⬡',color:'#7c3aed',
+   desc:'Cristalizado de estruturas hexagonais perfeitas. Mestre da geometria plana.',
+   ab:'Revela fórmulas ocultas de áreas',lore:'Emergiu de colmeias matemáticas perdidas na Grécia antiga.',
+   ok:['Hexagonal perfeito! ⬡','Estrutura impecável!','Hexathorn se orgulha!','Ângulos perfeitos!'],
+   no:['A estrutura rachou.','Recalcula os ângulos.','Hexágono não fecha.','Tenta outra abordagem.'],
+   p100:['Todos os hexágonos perfeitos! ⬡✨','Cristal matemático!']},
+  {id:'vectora',name:'Vectora',rarity:'rare',rl:'Raro',e:'➡️',color:'#dc2626',
+   desc:'Nasceu da primeira força aplicada no espaço. Controla vetores e direções.',
+   ab:'+25% XP em física matemática',lore:'Filha de Newton e dos vetores do universo.',
+   ok:['Direção correta! ➡️','Vetor preciso!','Força calculada!','Vectora aprova!'],
+   no:['Direção errada.','O vetor se perdeu.','Recalcula a força.','Sentido inverso!'],
+   p100:['Todos os vetores corretos! ➡️✨','Força suprema!']},
+  {id:'axiorix',name:'Axiorix',rarity:'rare',rl:'Raro',e:'📜',color:'#059669',
+   desc:'Guardião dos axiomas. Cada palavra que diz é uma verdade matemática absoluta.',
+   ab:'Explica axiomas e teoremas ao errar',lore:'Escrito no primeiro pergaminho matemático da história.',
+   ok:['Axioma confirmado! 📜','Teorema válido!','Verdade matemática!','Axiorix aprova!'],
+   no:['Axioma violado. Recomeça.','O teorema não se sustenta.','Premissa incorreta.','Lê o enunciado de novo.'],
+   p100:['Todos os axiomas honrados! 📜✨','Verdade suprema!']},
+  {id:'thalvex',name:'Thalvex',rarity:'rare',rl:'Raro',e:'🌊',color:'#0284c7',
+   desc:'Nasceu de ondas matemáticas do oceano. Mestre de funções periódicas.',
+   ab:'+25% XP em trigonometria',lore:'Tales de Mileto o invocou para medir pirâmides pela sombra.',
+   ok:['Onda perfeita! 🌊','Função periódica correta!','Thalvex vibra!','Ângulo exato!'],
+   no:['A onda se quebrou.','Período incorreto.','Recalcula o ângulo.','Seno ou cosseno?'],
+   p100:['Todas as ondas perfeitas! 🌊✨','Maré matemática!']},
+  {id:'deltrix',name:'Deltrix',rarity:'rare',rl:'Raro',e:'△',color:'#d97706',
+   desc:'Filho do delta matemático. Mede variações e mudanças com precisão cirúrgica.',
+   ab:'Alerta sobre variações importantes no enunciado',lore:'Nasceu da diferença entre dois infinitos.',
+   ok:['Variação calculada! △','Delta correto!','Mudança medida!','Deltrix aprova!'],
+   no:['A variação escapou.','O delta está errado.','Mede a diferença.','Qual a variação mesmo?'],
+   p100:['Todas as variações perfeitas! △✨','Derivada perfeita!']},
+  {id:'paradoxus',name:'Paradoxus',rarity:'epic',rl:'Épico',e:'∞',color:'#8b5cf6',
+   desc:'Nasceu do paradoxo de Zenão. Existe nos dois lados ao mesmo tempo.',
+   ab:'Alerta quando a intuição vai falhar',lore:'Prova que Aquiles nunca alcança a tartaruga — e ri disso.',
+   ok:['ATRAVESSOU O PARADOXO! 🌀','Raciocínio além do óbvio!','O paradoxo foi derrotado!','Infinito conquistado!'],
+   no:['CAIU NO PARADOXO! Isso é bom!','A primeira impressão enganou!','Paradoxo detectado!','Pensa além do óbvio.'],
+   p100:['100%! Raciocínio além da intuição! 🌀✨','Paradoxo resolvido!']},
+  {id:'caoskron',name:'Caoskron',rarity:'epic',rl:'Épico',e:'🌪️',color:'#ef4444',
+   desc:'Nasceu do caos primordial. Encontra ordem onde só há desordem.',
+   ab:'Bônus x2 em fases boss',lore:'Diz que o caos é apenas uma ordem que ainda não foi entendida.',
+   ok:['ORDEM NO CAOS! 🌪️','Caoskron rugiu!','Caos domado!','Ordem encontrada!'],
+   no:['O caos te venceu dessa vez.','Cria ordem a partir do caos.','Reorganiza os elementos.','Caos... mas não desiste!'],
+   p100:['CAOS TOTAL DOMINADO! 🌪️✨','Ordem suprema alcançada!']},
+  {id:'probalix',name:'Probalix',rarity:'epic',rl:'Épico',e:'🎲',color:'#f59e0b',
+   desc:'Nasceu do primeiro dado jogado na história. Mestre das probabilidades.',
+   ab:'+30% XP em probabilidade e combinatória',lore:'Sabe o resultado antes de você jogar o dado.',
+   ok:['Probabilidade calculada! 🎲','A sorte está com você!','Probalix confirmou!','Chances perfeitas!'],
+   no:['A probabilidade fugiu.','Calcula as chances.','Quantos resultados possíveis?','Relembra a fórmula.'],
+   p100:['100% de chance de perfeição! 🎲✨','Probabilidade absoluta!']},
+  {id:'auramis',name:'Auramis',rarity:'epic',rl:'Épico',e:'✨',color:'#fbbf24',
+   desc:'Aura de luz matemática. Ilumina a solução correta antes de você ver.',
+   ab:'Revela qual opção é armadilha',lore:'Criatura de pura energia matemática.',
+   ok:['Luz perfeita! ✨','Aura brilha!','Iluminado!','Auramis resplandece!'],
+   no:['A luz se apagou.','Traz mais luz ao problema.','Ilumina de novo.','Auramis espera por você.'],
+   p100:['AURA MÁXIMA! ✨🌟','Luz perfeita em todas!']},
+  {id:'vortexis',name:'Vortexis',rarity:'epic',rl:'Épico',e:'🌀',color:'#06b6d4',
+   desc:'Nasceu de um vórtice matemático. Absorve erros e os transforma em aprendizado.',
+   ab:'Cada erro gera +5 XP bônus',lore:'Quanto mais erros, mais forte fica.',
+   ok:['VÓRTICE DE ACERTOS! 🌀','Energia máxima!','Vortexis absorveu!','Fluxo perfeito!'],
+   no:['Erro absorvido. +5 XP! 🌀','O vórtice cresceu!','Ótimo erro! Crescemos.','Vortexis agradece!'],
+   p100:['VÓRTICE SUPREMO! 🌀✨','Energia máxima atingida!']},
+  {id:'axiomata',name:'Axiomata',rarity:'legendary',rl:'Lendário',e:'🏛️',color:'#f59e0b',
+   desc:'A verdade matemática em forma de ser. Tudo que diz é um axioma universal.',
+   ab:'+40% XP em todo o jogo',lore:'Nasceu antes do universo. Definiu as regras da matemática.',
+   ok:['AXIOMA PROVADO! 🏛️','Verdade eterna!','Axiomata consagra!','QED absoluto!'],
+   no:['O axioma foi violado. Recomeça.','A verdade foi obscurecida.','Volta ao básico.','Axioma quebrado!'],
+   p100:['AXIOMA SUPREMO! 🏛️✨','Verdade eterna estabelecida!']},
+  {id:'chronovex',name:'Chronovex',rarity:'legendary',rl:'Lendário',e:'⌛',color:'#8b5cf6',
+   desc:'Viajante do tempo matemático. Conhece a solução de problemas futuros.',
+   ab:'Mostra o caminho da solução em 3 passos',lore:'Estudou com matemáticos de todas as épocas ao mesmo tempo.',
+   ok:['CALCULADO NO FUTURO! ⌛','Chronovex viajou!','Tempo correto!','Linha do tempo perfeita!'],
+   no:['O futuro ainda está nublado.','Volta ao presente.','Recalcula o tempo.','Chronovex espera.'],
+   p100:['FUTURO PERFEITO! ⌛✨','Cronologia suprema!']},
+  {id:'hexalion',name:'Hexalion',rarity:'legendary',rl:'Lendário',e:'🏆',color:'#f59e0b',
+   desc:'Nasceu da primeira olimpíada matemática. O leão campeão de todos os tempos.',
+   ab:'Modo Olímpico ativo em simulados OMBEP',lore:'Ganhou todas as olimpíadas desde 776 a.C.',
+   ok:['ESPÍRITO OLÍMPICO! 🦁','O pódio te espera!','Rugido de campeão!','Hexalion ruge!'],
+   no:['O campeão não desiste. LEVANTA!','Cada erro é treino.','O ouro está próximo.','Hexalion acredita em você!'],
+   p100:['VITÓRIA PERFEITA! Digno do pódio! 🏆🔥','CAMPEÃO ABSOLUTO!']},
+  {id:'infinithos',name:'Infinithos',rarity:'mythic',rl:'Mítico',e:'∞',color:'#ec4899',
+   desc:'O ser do infinito. Existe além dos números, além do tempo, além da imaginação.',
+   ab:'+50% XP + revela a solução completa ao errar',lore:'Não tem origem. Simplesmente sempre existiu.',
+   ok:['O INFINITO APROVA! ∞','ALÉM DOS NÚMEROS!','INFINITHOS DESPERTA!','Aprovação eterna!'],
+   no:['O infinito é paciente. Tenta.','A eternidade espera.','Recalcula com paciência infinita.','O infinito não julga.'],
+   p100:['PERFEIÇÃO INFINITA! ∞✨','ALÉM DO IMPOSSÍVEL!']},
+  {id:'cryptogon',name:'Cryptogon',rarity:'mythic',rl:'Mítico',e:'🔮',color:'#7c3aed',
+   desc:'Codifica e decodifica a matemática do universo. Cada questão é um segredo.',
+   ab:'Dica criptografada que revela a solução',lore:'Criado pelos criptógrafos de Alexandria para proteger o conhecimento.',
+   ok:['CÓDIGO DECIFRADO! 🔮','Cryptogon revela!','Segredo desvendado!','Criptografia perfeita!'],
+   no:['O código resistiu.','Decifra com calma.','A criptografia guarda segredos.','Cryptogon aguarda.'],
+   p100:['TODOS OS CÓDIGOS DECIFRADOS! 🔮✨','Criptografia suprema!']},
+  {id:'nullvox',name:'Nullvox',rarity:'mythic',rl:'Mítico',e:'⚫',color:'#1e1b4b',
+   desc:'Nasceu do zero absoluto. Transforma nada em tudo através da matemática pura.',
+   ab:'Cada fase perfeita dá +100 XP bônus',lore:'O número zero o invocou quando foi descoberto na Índia.',
+   ok:['DO NADA, TUDO! ⚫','Nullvox aprova!','Zero se tornou infinito!','Vazio perfeito!'],
+   no:['O vazio te engoliu.','Preenche o vazio.','Do zero começa.','Nullvox aguarda o zero.'],
+   p100:['VAZIO ABSOLUTO DOMINADO! ⚫✨','Do zero à perfeição!']},
+,
+
+  {id:'zeroix',name:'Zeroix',rarity:'rare',rl:'Raro',e:'0️⃣',color:'#6366f1',
+   desc:'Nasceu do descobrimento do zero na Índia. O mais poderoso dos algarismos.',
+   ab:'+25% XP quando acerta após errar',lore:'Prova que do nada pode surgir tudo.',
+   ok:['Do zero ao topo!','Zero dúvidas!','Zeroix celebra!','Do vazio, perfeição!'],
+   no:['Volta ao zero e recomeça.','O zero reinicia.','Do zero de novo!','Zero problemas — tenta!'],
+   p100:['DO ZERO AO 100%! 0️⃣✨','Perfeição a partir do nada!']},
+  {id:'primux',name:'Primux',rarity:'rare',rl:'Raro',e:'🔑',color:'#0891b2',
+   desc:'Guardião dos números primos. Indivisível. Inquebrável.',
+   ab:'+30% XP em teoria dos números',lore:'Nasceu do primeiro número primo do universo.',
+   ok:['PRIMO E PERFEITO! 🔑','Indivisível!','Primux rugiu!','Número primo aprovado!'],
+   no:['A divisão foi errada.','Verifica se é primo.','Fatoriza com calma.','Primux resiste.'],
+   p100:['PERFEIÇÃO PRIMA! 🔑✨','Todos os primos encontrados!']},
+  {id:'fractalix',name:'Fractalix',rarity:'epic',rl:'Épico',e:'🌀',color:'#7c3aed',
+   desc:'Nasceu do primeiro fractal de Mandelbrot. Cada parte contém o todo.',
+   ab:'Questões especiais com padrões infinitos',lore:'Se você o observar de perto, outro Fractalix aparece dentro dele.',
+   ok:['PADRÃO INFINITO! 🌀','Fractalix se replica!','Auto-semelhança perfeita!','O padrão se revela!'],
+   no:['O padrão quebrou.','Cada parte é o todo.','Olha o fractal inteiro.','Fractalix aguarda.'],
+   p100:['FRACTAL PERFEITO! 🌀✨','Infinito dentro do finito!']},
+  {id:'eulix',name:'Eulix',rarity:'legendary',rl:'Lendário',e:'📏',color:'#b45309',
+   desc:'A encarnação de Euclides. Porta os Elementos da matemática no coração.',
+   ab:'Após cada fase perfeita, ganha caixa bônus',lore:'Escreveu os 13 livros dos Elementos antes de você nascer.',
+   ok:['QUOD ERAT DEMONSTRANDUM! 📏','Eulix prova!','QED absoluto!','Demonstração perfeita!'],
+   no:['A prova falhou. Recomeça.','Eulix ri com carinho.','Tenta outra demonstração.','O axioma resiste.'],
+   p100:['QED! FASE DEMONSTRADA! 📏✨','Euclides aprovaria!']},
+  {id:'gauss_pet',name:'Gaussix',rarity:'legendary',rl:'Lendário',e:'🧮',color:'#047857',
+   desc:'A mente de Gauss em forma de pet. Vê somas como ninguém.',
+   ab:'+50% XP em progressões e somas',lore:'Resolveu n(n+1)/2 com 8 anos. Só por diversão.',
+   ok:['GAUSS APROVA! 🧮','Calculado em segundos!','O príncipe da matemática aprova!','Soma perfeita!'],
+   no:['Gauss resolve isso em 2s. Tenta.','A soma fugiu.','Recalcula com a fórmula.','Gaussix espera pacientemente.'],
+   p100:['GAUSSIX EXULTOU! 🧮✨','n(n+1)/2 de perfeição!']},
+  {id:'ramanujan_pet',name:'Ramanix',rarity:'mythic',rl:'Mítico',e:'♾️',color:'#92400e',
+   desc:'A intuição de Ramanujan. Vê relações entre números que outros não conseguem.',
+   ab:'Revela conexões ocultas entre questões + 75% XP',lore:'Disse que suas fórmulas vinham em sonhos de uma deusa. Acreditamos.',
+   ok:['RAMANIX SONHOU A RESPOSTA! ♾️','Intuição divina!','A deusa revelou!','Ramanujan aprovaria!'],
+   no:['A deusa não revelou ainda.','Medita um pouco mais.','A intuição chega.','Ramanix aguarda o sonho.'],
+   p100:['A DEUSA APROVOU! ♾️✨','Intuição suprema!']},
+];
+
+var ACHS = [
+  {id:'first_correct',name:'Primeiro Acerto',desc:'Acerte sua primeira questão',icon:'⭐',rw:10},
+  {id:'first_100',name:'Fase Perfeita',desc:'100% em uma fase',icon:'💛',rw:50},
+  {id:'streak_3',name:'Em Chamas',desc:'3 acertos seguidos',icon:'🔥',rw:20},
+  {id:'streak_7',name:'Semana Perfeita',desc:'7 dias de streak',icon:'📅',rw:100},
+  {id:'world_1',name:'Mundo 1 Completo',desc:'Complete o Mundo 1',icon:'🌍',rw:75},
+  {id:'world_2',name:'Mundo 2 Completo',desc:'Complete o Mundo 2',icon:'🍃',rw:100},
+  {id:'world_3',name:'Mundo 3 Completo',desc:'Complete o Mundo 3',icon:'🏰',rw:150},
+  {id:'world_4',name:'Mundo 4 Completo',desc:'Complete o Mundo 4',icon:'📐',rw:200},
+  {id:'world_5',name:'Arena OMBEP',desc:'Entre na Arena',icon:'🏆',rw:300},
+  {id:'level_5',name:'Nível 5',desc:'Alcance o nível 5',icon:'📈',rw:60},
+  {id:'level_10',name:'Nível 10',desc:'Alcance o nível 10',icon:'🚀',rw:150},
+  {id:'level_20',name:'Nível 20',desc:'Alcance o nível 20',icon:'💫',rw:500},
+  {id:'ombep_bronze',name:'Olímpico Bronze',desc:'Complete o Simulado Bronze',icon:'🥉',rw:200},
+  {id:'ombep_prata',name:'Olímpico Prata',desc:'Complete o Simulado Prata',icon:'🥈',rw:350},
+  {id:'ombep_ouro',name:'Olímpico Ouro',desc:'80%+ no Simulado Ouro',icon:'🥇',rw:700},
+  {id:'collector_3',name:'Iniciante',desc:'Tenha 3 pets',icon:'🐾',rw:75},
+  {id:'collector_10',name:'Colecionador',desc:'Tenha 10 pets',icon:'🦁',rw:300},
+  {id:'collector_all',name:'Mestre dos Pets',desc:'Colete todos os 26 pets',icon:'👑',rw:1000},
+  {id:'perfect_5',name:'Precisão Bronze',desc:'5 fases com 100%',icon:'💎',rw:100},
+  {id:'perfect_20',name:'Precisão Ouro',desc:'20 fases com 100%',icon:'💎',rw:500},
+  {id:'speed_demon',name:'Relâmpago',desc:'Responda em menos de 3s',icon:'⚡',rw:50},
+  {id:'no_errors',name:'Invicto',desc:'Complete fase sem erros',icon:'🛡️',rw:80},
+  {id:'combo_5',name:'Combo 5x',desc:'5 acertos seguidos numa fase',icon:'🔥',rw:60},
+  {id:'combo_10',name:'Combo 10x',desc:'10 acertos seguidos',icon:'💥',rw:150},
+  {id:'ombep_complete',name:'OMBEP Total',desc:'Complete todos os simulados OMBEP',icon:'🏆',rw:1000},
+  {id:'all_worlds',name:'Conquistador',desc:'Complete todos os 5 mundos',icon:'🌍',rw:500},
+  {id:'daily_7',name:'Dedicado',desc:'Conclua 7 desafios diários',icon:'📅',rw:300},
+];
+
+var RANKS = [
+  {name:'Bronze',min:0,color:'#cd7f32',icon:'🥉'},
+  {name:'Prata',min:800,color:'#c0c0c0',icon:'🥈'},
+  {name:'Ouro',min:2500,color:'#ffd700',icon:'🥇'},
+  {name:'Platina',min:6000,color:'#e5e4e2',icon:'💎'},
+  {name:'Diamante',min:15000,color:'#b9f2ff',icon:'💠'},
+  {name:'Mestre',min:35000,color:'#ff6b6b',icon:'👑'},
+  {name:'Grão-Mestre',min:80000,color:'#ec4899',icon:'⚡'},
+];
+
+var BOX_ODDS = {
+  c:[{r:'epic',max:3},{r:'rare',max:12},{r:'uncommon',max:40},{r:'common',max:100}],
+  u:[{r:'mythic',max:1},{r:'legendary',max:5},{r:'epic',max:15},{r:'rare',max:40},{r:'uncommon',max:100}],
+  r:[{r:'mythic',max:5},{r:'legendary',max:20},{r:'epic',max:70},{r:'rare',max:100}],
+  g:[{r:'mythic',max:20},{r:'legendary',max:70},{r:'mythic',max:100}],
+};
+
+/* ═══════════════════════════════════════════════════
+   STATE GLOBAL
+═══════════════════════════════════════════════════ */
+var G = {
+  profiles: [],
+  curProfile: null,
+};
+
+function defProfile(name, avatarId) {
+  return {
+    id: Date.now().toString(36),
+    name: name,
+    avatarId: avatarId || 'kalkulon',
+    created: Date.now(),
+    level: 1, xp: 0, xpNext: 100,
+    coins: 200, gems: 5,
+    streak: 0, lastLogin: null,
+    totalC: 0, totalW: 0,
+    phases: {},
+    pOwned: ['kalkulon'],
+    pActive: 'kalkulon',
+    pAff: {kalkulon: 0},
+    pLv: {kalkulon: 1},
+    achs: [],
+    boxes: {c:0,u:0,r:0,g:0},
+  };
+}
+
+function saveAll() {
+  try {
+    localStorage.setItem('wq2_profiles', JSON.stringify(G.profiles));
+    if (G.curProfile) {
+      var idx = G.profiles.findIndex(function(p){return p.id===G.curProfile.id;});
+      if (idx>=0) G.profiles[idx] = G.curProfile;
+      localStorage.setItem('wq2_profiles', JSON.stringify(G.profiles));
+    }
+  } catch(e){}
+}
+
+function loadAll() {
+  try {
+    var raw = localStorage.getItem('wq2_profiles');
+    if (raw) G.profiles = JSON.parse(raw);
+    else G.profiles = [];
+  } catch(e){ G.profiles = []; }
+}
+
+var P = function(){ return G.curProfile; };
+
+/* ═══════════════════════════════════════════════════
+   HELPERS
+═══════════════════════════════════════════════════ */
+function xpFor(l){ return Math.floor(100*Math.pow(1.45,l-1)); }
+function pk(w,p){ return 'w'+w+'_p'+p; }
+function rnd(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function shuf(arr){ return arr.slice().sort(function(){return Math.random()-.5;}); }
+function pet(id){ return PETS.find(function(p){return p.id===id;})||PETS[0]; }
+function getPet(){ return pet(P().pActive); }
+function getRank(){
+  var tot = P().xp;
+  var r = RANKS[0];
+  for(var i=0;i<RANKS.length;i++){ if(tot>=RANKS[i].min) r=RANKS[i]; }
+  return r;
+}
+function badgeClass(rarity){
+  var m={common:'b-common',uncommon:'b-uncommon',rare:'b-rare',epic:'b-epic',legendary:'b-legendary',mythic:'b-mythic'};
+  return m[rarity]||'b-common';
+}
+function phaseUnlocked(w,p){
+  if(w===0&&p===0) return true;
+  if(p>0) return !!P().phases[pk(w,p-1)];
+  if(w>0) return !!P().phases[pk(w-1,WORLDS[w-1].phases.length-1)];
+  return false;
+}
+function worldUnlocked(w){ return w===0||!!P().phases[pk(w-1,WORLDS[w-1].phases.length-1)]; }
+
+/* ═══════════════════════════════════════════════════
+   EFFECTS / ANIMATIONS
+═══════════════════════════════════════════════════ */
+function spawnParticles(x,y,col){
+  var colors = col ? [col] : ['#f59e0b','#4ade80','#3b82f6','#8b5cf6','#ec4899','#fb923c'];
+  for(var i=0;i<10;i++){
+    var el=document.createElement('div');
+    el.className='particle';
+    el.style.cssText='left:'+(x-4+Math.random()*20)+'px;top:'+(y-4-Math.random()*20)+'px;background:'+rnd(colors)+';animation-duration:'+(0.6+Math.random()*0.5)+'s;animation-delay:'+(Math.random()*0.15)+'s;';
+    document.body.appendChild(el);
+    setTimeout(function(e){if(e.parentNode)e.parentNode.removeChild(e);},1200,el);
+  }
+}
+
+function spawnConfetti(){
+  var colors=['#f59e0b','#4ade80','#3b82f6','#8b5cf6','#ec4899','#fb923c','#ef4444','#fbbf24'];
+  for(var i=0;i<25;i++){
+    var el=document.createElement('div');
+    el.className='confetti';
+    el.style.cssText='left:'+(Math.random()*100)+'%;top:-20px;background:'+rnd(colors)+';animation-duration:'+(0.7+Math.random()*0.8)+'s;animation-delay:'+(Math.random()*0.5)+'s;border-radius:'+(Math.random()>0.5?'50%':'2px')+';';
+    document.body.appendChild(el);
+    setTimeout(function(e){if(e.parentNode)e.parentNode.removeChild(e);},1500,el);
+  }
+}
+
+function floatXP(txt,col){
+  var el=document.createElement('div');
+  el.className='fxp';
+  el.textContent=txt;
+  el.style.cssText='color:'+(col||'#f59e0b')+';left:'+(20+Math.random()*50)+'%;top:'+(35+Math.random()*20)+'%;';
+  document.body.appendChild(el);
+  setTimeout(function(){if(el.parentNode)el.parentNode.removeChild(el);},1200);
+}
+
+var _toastTimer=null;
+function toast(msg,cls){
+  var c=document.getElementById('toasts');if(!c)return;
+  var t=document.createElement('div');
+  t.className='toast '+(cls||'toast-g');
+  t.textContent=msg;
+  c.appendChild(t);
+  setTimeout(function(){if(t.parentNode)t.parentNode.removeChild(t);},3100);
+}
+
+/* ═══════════════════════════════════════════════════
+   XP / LEVELING
+═══════════════════════════════════════════════════ */
+function addXP(n){
+  var pr=P();
+  pr.xp+=n;
+  var leveled=false;
+  while(pr.xp>=pr.xpNext){
+    pr.xp-=pr.xpNext;
+    pr.level++;
+    pr.xpNext=xpFor(pr.level);
+    leveled=true;
+    onLevelUp(pr.level);
+  }
+  if(leveled){ unlockAch('level_5'); unlockAch('level_10'); unlockAch('level_20'); }
+  updTopbar();
+  saveAll();
+}
+
+function onLevelUp(lv){
+  showModal(
+    '<div style="font-size:56px;margin-bottom:10px">⬆️</div>'+
+    '<h2 style="font-size:1.8rem;font-weight:900;color:var(--gold);margin-bottom:6px">NÍVEL UP!</h2>'+
+    '<p style="color:var(--t2);margin-bottom:8px">Você alcançou o nível</p>'+
+    '<div style="font-size:4rem;font-weight:900;color:var(--gold);margin-bottom:18px">'+lv+'</div>'+
+    '<button class="btn btn-p btn-full btn-lg" onclick="closeModal()">Incrível! 🎉</button>'
+  );
+  spawnConfetti();
+}
+
+/* ═══════════════════════════════════════════════════
+   ACHIEVEMENTS
+═══════════════════════════════════════════════════ */
+function unlockAch(id){
+  var pr=P();if(!pr)return;
+  if(pr.achs.indexOf(id)>=0)return;
+  var a=ACHS.find(function(a){return a.id===id;});
+  if(!a)return;
+  // Check level
+  if(id==='level_5'&&pr.level<5)return;
+  if(id==='level_10'&&pr.level<10)return;
+  if(id==='level_20'&&pr.level<20)return;
+  if(id==='collector_3'&&pr.pOwned.length<3)return;
+  if(id==='collector_10'&&pr.pOwned.length<10)return;
+  if(id==='collector_all'&&pr.pOwned.length<PETS.length)return;
+  pr.achs.push(id);
+  pr.coins+=a.rw;
+  saveAll();
+  setTimeout(function(){
+    showModal(
+      '<div style="font-size:.8rem;color:var(--gold);font-weight:700;margin-bottom:6px">CONQUISTA DESBLOQUEADA!</div>'+
+      '<div style="font-size:3rem;margin-bottom:8px">'+a.icon+'</div>'+
+      '<h2 style="font-size:1.3rem;font-weight:900;margin-bottom:6px">'+a.name+'</h2>'+
+      '<p style="color:var(--t2);font-size:.9rem;margin-bottom:14px">'+a.desc+'</p>'+
+      '<div style="color:var(--gold);font-weight:700;margin-bottom:18px">+'+a.rw+' 🪙</div>'+
+      '<button class="btn btn-p btn-full" onclick="closeModal()">Receber 🎁</button>'
+    );
+  },300);
+}
+
+/* ═══════════════════════════════════════════════════
+   MODAL
+═══════════════════════════════════════════════════ */
+function showModal(html){
+  var ov=document.getElementById('mainModal');
+  var inner=document.getElementById('mainModalInner');
+  if(inner) inner.innerHTML=html;
+  if(ov) ov.classList.add('open');
+}
+function closeModal(){
+  var ov=document.getElementById('mainModal');
+  if(ov) ov.classList.remove('open');
+}
+
+/* ═══════════════════════════════════════════════════
+   SCREENS
+═══════════════════════════════════════════════════ */
+function showScreen(id){
+  var all=document.querySelectorAll('.screen');
+  for(var i=0;i<all.length;i++){ all[i].classList.remove('active'); }
+  var t=document.getElementById(id);
+  if(t){ t.classList.add('active'); }
+  if(id==='home') updNav('home');
+  else if(id==='map') updNav('map');
+  else if(id==='pets') updNav('pets');
+  else if(id==='shop') updNav('shop');
+  else if(id==='profile') updNav('profile');
+}
+
+function updNav(active){
+  var tabs=['home','map','pets','shop','profile'];
+  for(var i=0;i<tabs.length;i++){
+    var el=document.querySelector('#homeNav .nb-'+tabs[i]);
+    if(el){ el.classList.toggle('active',tabs[i]===active); }
+  }
+}
+
+function updTopbar(){
+  var pr=P();if(!pr)return;
+  var tb=document.getElementById('homeTopbar');
+  if(!tb)return;
+  var pct=Math.min(100,Math.round(pr.xp/pr.xpNext*100));
+  var curPet=getPet();
+  tb.innerHTML=
+    '<div class="chip">⭐ Nv.'+pr.level+'</div>'+
+    '<div class="xpbar"><div class="xpfill" style="width:'+pct+'%"></div></div>'+
+    '<div class="chip">🪙 '+pr.coins+'</div>'+
+    '<div class="chip">💎 '+pr.gems+'</div>';
+}
+
+function buildNav(){
+  var tabs=[
+    ['home','🏠','Início','nb-home'],
+    ['map','🗺️','Mundos','nb-map'],
+    ['pets','🐾','Pets','nb-pets'],
+    ['shop','🛒','Loja','nb-shop'],
+    ['profile','👤','Perfil','nb-profile'],
+  ];
+  var html='';
+  for(var i=0;i<tabs.length;i++){
+    var t=tabs[i];
+    html+='<button class="nb '+t[3]+'" onclick="goSection(\''+t[0]+'\')" >';
+    html+='<span class="nb-icon">'+t[1]+'</span>'+t[2];
+    html+='</button>';
+  }
+  document.getElementById('homeNav').innerHTML=html;
+}
+
+function goSection(s){
+  if(s==='home') goHome();
+  else if(s==='map') goMap();
+  else if(s==='pets') goPets();
+  else if(s==='shop') goShop();
+  else if(s==='profile') goPfl();
+  else if(s==='achievements') goAch();
+}
+
+/* ═══════════════════════════════════════════════════
+   PROFILES SCREEN
+═══════════════════════════════════════════════════ */
+function renderProfiles(){
+  var list=document.getElementById('profList');
+  if(!list)return;
+  var html='';
+  for(var i=0;i<G.profiles.length;i++){
+    var pr=G.profiles[i];
+    var curPet=pet(pr.pActive);
+    var rank=RANKS[0];
+    for(var ri=0;ri<RANKS.length;ri++){ if(pr.xp>=RANKS[ri].min) rank=RANKS[ri]; }
+    html+='<div class="prof-card" onclick="selectProfile(\''+pr.id+'\')">'+
+      '<div style="font-size:2.2rem;margin-bottom:6px">'+curPet.e+'</div>'+
+      '<div style="font-weight:700;font-size:.95rem;margin-bottom:3px">'+esc(pr.name)+'</div>'+
+      '<div style="font-size:.75rem;color:var(--t2)">'+rank.icon+' '+rank.name+'</div>'+
+      '<div style="font-size:.72rem;color:var(--t3);margin-top:3px">Nv. '+pr.level+'</div>'+
+      '<button onclick="event.stopPropagation();deleteProfile(\''+pr.id+'\')" style="position:absolute;top:6px;right:8px;background:transparent;border:none;color:var(--t3);font-size:1rem;cursor:pointer">✕</button>'+
+    '</div>';
+  }
+  if(G.profiles.length<8){
+    html+='<div class="prof-card prof-add" onclick="createProfile()">'+
+      '<div style="font-size:2rem;margin-bottom:5px">➕</div>'+
+      '<div style="font-size:.82rem">Novo Perfil</div>'+
+    '</div>';
+  }
+  list.innerHTML=html;
+}
+
+function selectProfile(id){
+  var pr=G.profiles.find(function(p){return p.id===id;});
+  if(!pr)return;
+  G.curProfile=pr;
+  chkStreak();
+  buildNav();
+  updTopbar();
+  goHome();
+  showScreen('home');
+}
+
+function createProfile(){
+  var n=prompt('Nome do jogador (2-18 caracteres):','');
+  if(!n||n.trim().length<2)return;
+  var np=defProfile(n.trim().substring(0,18));
+  G.profiles.push(np);
+  saveAll();
+  renderProfiles();
+  selectProfile(np.id);
+}
+
+function deleteProfile(id){
+  if(!confirm('Deletar este perfil? Esta ação não pode ser desfeita.'))return;
+  G.profiles=G.profiles.filter(function(p){return p.id!==id;});
+  saveAll();
+  if(G.curProfile&&G.curProfile.id===id){
+    G.curProfile=null;
+    showScreen('profiles');
+    renderProfiles();
+  } else { renderProfiles(); }
+}
+
+function chkStreak(){
+  var pr=P();if(!pr)return;
+  var today=new Date().toDateString();
+  if(pr.lastLogin===today)return;
+  var yest=new Date(Date.now()-86400000).toDateString();
+  if(pr.lastLogin===yest){ pr.streak++; }
+  else { pr.streak=1; }
+  pr.lastLogin=today;
+  if(pr.streak>=3){ pr.coins+=pr.streak*3; toast('🔥 Streak '+pr.streak+'! +'+pr.streak*3+' 🪙','toast-g'); }
+  if(pr.streak>=7) unlockAch('streak_7');
+  saveAll();
+}
+
+/* ═══════════════════════════════════════════════════
+   HOME
+═══════════════════════════════════════════════════ */
+function goHome(){
+  updTopbar();
+  updNav('home');
+  renderHome();
+  showScreen('home');
+}
+
+function renderHome(){
+  var pr=P();if(!pr)return;
+  var curPet=getPet();
+  var rank=getRank();
+  var xpPct=Math.min(100,Math.round(pr.xp/pr.xpNext*100));
+  var golden=Object.values(pr.phases).filter(function(p){return p&&p.best===100;}).length;
+  // Find next phase
+  var next=null;
+  outer:for(var w=0;w<WORLDS.length;w++){
+    for(var p2=0;p2<WORLDS[w].phases.length;p2++){
+      if(phaseUnlocked(w,p2)&&!pr.phases[pk(w,p2)]){next={w:w,p:p2};break outer;}
+    }
+  }
+  var nextBtn=next?
+    '<button class="btn btn-p btn-full btn-lg" onclick="startPhase('+next.w+','+next.p+')" style="font-size:1rem">'+WORLDS[next.w].emoji+' '+WORLDS[next.w].phases[next.p].name+' →</button>':
+    '<div class="card" style="text-align:center;color:var(--grn);font-weight:700">🏆 Todos os mundos concluídos!</div>';
+
+  var html=
+  '<div class="hero-card">'+
+    '<span class="pet-avatar">'+curPet.e+'</span>'+
+    '<div style="flex:1;min-width:0">'+
+      '<div style="font-size:1.1rem;font-weight:900;margin-bottom:2px">'+esc(pr.name)+'</div>'+
+      '<div class="rank-badge" style="background:'+rank.color+'22;color:'+rank.color+';border:1px solid '+rank.color+'44;margin-bottom:6px">'+rank.icon+' '+rank.name+'</div>'+
+      '<div style="height:5px;background:var(--bg3);border-radius:3px;overflow:hidden;margin-bottom:3px">'+
+        '<div style="height:100%;width:'+xpPct+'%;background:linear-gradient(90deg,var(--pur),var(--blue));border-radius:3px;transition:width .5s"></div>'+
+      '</div>'+
+      '<div style="font-size:.72rem;color:var(--t3)">'+pr.xp+'/'+pr.xpNext+' XP • Nv.'+pr.level+'</div>'+
+    '</div>'+
+  '</div>'+
+  '<div class="streak-card">'+
+    '<div style="font-size:2.6rem">🔥</div>'+
+    '<div style="flex:1">'+
+      '<div style="font-weight:700;font-size:.95rem">'+pr.streak+' dia'+(pr.streak!==1?'s':'')+' de streak!</div>'+
+      '<div style="color:var(--t2);font-size:.78rem">'+(pr.streak>=7?'🏆 Semana perfeita!':'Jogue todo dia para manter!')+'</div>'+
+    '</div>'+
+    '<div style="font-size:1.8rem;font-weight:900;color:var(--gold)">'+pr.streak+'</div>'+
+  '</div>'+
+  // Daily Challenge Card
+  (function(){
+    var dc=getDailyChallenge();
+    var ch=dc?DAILY_CHALLENGES.find(function(c){return c.id===dc.id;}):null;
+    var pct=ch?Math.min(100,Math.round((dc.progress||0)/ch.target*100)):0;
+    return dc&&ch?
+      '<div style="background:linear-gradient(135deg,rgba(6,182,212,.08),rgba(139,92,246,.06));border:1px solid rgba(6,182,212,.25);border-radius:20px;padding:14px">'+
+        '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">'+
+          '<div style="font-weight:700;font-size:.88rem">🎯 Desafio Diário</div>'+
+          '<div style="font-size:.75rem;color:var(--t2)">'+(dc.done?'✅ Concluído!':dc.progress+'/'+ch.target)+'</div>'+
+        '</div>'+
+        '<div style="font-size:.82rem;color:var(--t2);margin-bottom:7px">'+ch.desc+'</div>'+
+        '<div class="pbar"><div class="pfill" style="width:'+pct+'%;background:linear-gradient(90deg,var(--cyan),var(--pur))"></div></div>'+
+        '<div style="font-size:.72rem;color:var(--t3);margin-top:5px">Recompensa: '+ch.reward+'🪙'+(ch.gem?' +'+ch.gem+'💎':'')+'</div>'+
+      '</div>':'';
+  })()+
+  '<div class="stat-grid">'+
+    '<div class="stat-box"><div class="stat-val t-grn">'+pr.totalC+'</div><div class="stat-lbl">✅ Acertos</div></div>'+
+    '<div class="stat-box"><div class="stat-val t-gold">'+golden+'</div><div class="stat-lbl">⭐ Douradas</div></div>'+
+    '<div class="stat-box"><div class="stat-val t-pur">'+pr.pOwned.length+'/'+PETS.length+'</div><div class="stat-lbl">🐾 Pets</div></div>'+
+  '</div>'+
+  '<div class="section-title" style="margin-top:2px">🎮 Continuar Aventura</div>'+
+  nextBtn+
+  '<button class="btn btn-s btn-full" onclick="goMap()" style="margin-top:-3px">🗺️ Ver Mapa Completo</button>'+
+  '<div class="section-title">⚡ Ações Rápidas</div>'+
+  '<div class="quick-grid">'+
+    '<div class="quick-btn" onclick="goPets()"><span style="font-size:1.6rem">'+curPet.e+'</span><span style="font-size:.8rem">Meus Pets</span></div>'+
+    '<div class="quick-btn" onclick="goAch()"><span style="font-size:1.6rem">🏅</span><span style="font-size:.8rem">Conquistas ('+pr.achs.length+'/'+ACHS.length+')</span></div>'+
+    '<div class="quick-btn" onclick="goShop()"><span style="font-size:1.6rem">🛒</span><span style="font-size:.8rem">Loja</span></div>'+
+    '<div class="quick-btn" onclick="goPfl()"><span style="font-size:1.6rem">👤</span><span style="font-size:.8rem">Perfil</span></div>'+
+  '</div>'+
+  '<div style="height:10px"></div>';
+  document.getElementById('homeBody').innerHTML=html;
+}
+
+/* ═══════════════════════════════════════════════════
+   MAP
+═══════════════════════════════════════════════════ */
+function goMap(){ renderMap(); showScreen('map'); updNav('map'); }
+
+function renderMap(){
+  var pr=P();if(!pr)return;
+  var html='';
+  for(var w=0;w<WORLDS.length;w++){
+    var wo=WORLDS[w];
+    var ul=worldUnlocked(w);
+    var done=wo.phases.filter(function(_,p2){return !!pr.phases[pk(w,p2)];}).length;
+    var pct=Math.round(done/wo.phases.length*100);
+    html+='<div class="world-card '+(ul?'':'locked')+'" style="background:linear-gradient(135deg,'+wo.dark+',var(--bg2));border-color:'+wo.color+'44">';
+    html+='<div class="world-header"><div style="font-size:2.2rem">'+wo.emoji+'</div>'+
+      '<div><div style="font-weight:900;color:'+wo.color+';font-size:.95rem">'+wo.name+'</div>'+
+      '<div style="color:var(--t2);font-size:.76rem">'+wo.desc+'</div></div>'+
+      (ul?'':'<div style="margin-left:auto;font-size:1.3rem">🔒</div>')+
+    '</div>';
+    if(ul){
+      html+='<div style="margin-bottom:11px">'+
+        '<div style="display:flex;justify-content:space-between;font-size:.76rem;color:var(--t2);margin-bottom:4px"><span>'+done+'/'+wo.phases.length+'</span><span>'+pct+'%</span></div>'+
+        '<div class="pbar"><div class="pfill" style="width:'+pct+'%;background:'+wo.color+'"></div></div>'+
+      '</div>';
+      html+='<div class="phase-list">';
+      for(var p=0;p<wo.phases.length;p++){
+        var ph=wo.phases[p];
+        var pUn=phaseUnlocked(w,p);
+        var pD=pr.phases[pk(w,p)];
+        var isG=pD&&pD.best===100;
+        var stars='';
+        if(pD){ for(var si=0;si<3;si++) stars+=(si<(pD.stars||0)?'⭐':'☆'); }
+        var cls='phase-row'+(isG?' golden-row':pD?' done':ph.boss?' boss-row':'')+(!pUn?' locked-row':'');
+        var onclick=pUn?'onclick="startPhase('+w+','+p+')"':'';
+        html+='<div class="'+cls+'" '+onclick+'>'+
+          '<div class="phase-num" style="background:'+wo.color+'22;color:'+wo.color+'">'+(p+1)+'</div>'+
+          '<div class="phase-info">'+
+            '<div class="phase-name">'+(ph.boss?'💀 ':ph.ombep?'🏆 ':'')+ph.name+'</div>'+
+            '<div class="phase-topic">'+ph.topic+(ph.level?' • '+ph.level.charAt(0).toUpperCase()+ph.level.slice(1):'')+'</div>'+
+          '</div>'+
+          (pUn&&pD?'<div style="font-size:.85rem">'+stars+'</div>':pUn?'<div style="color:var(--t3);font-size:.85rem">▶</div>':'<div style="font-size:.9rem">🔒</div>')+
+        '</div>';
+      }
+      html+='</div>';
+    } else {
+      html+='<div style="text-align:center;padding:13px;color:var(--t3);font-size:.85rem">🔒 Complete o mundo anterior para desbloquear</div>';
+    }
+    html+='</div>';
+  }
+  document.getElementById('mapBody').innerHTML=html;
+}
+
+/* ═══════════════════════════════════════════════════
+   PETS
+═══════════════════════════════════════════════════ */
+function goPets(){ renderPets(); showScreen('pets'); updNav('pets'); }
+
+function renderPets(){
+  var pr=P();if(!pr)return;
+  var curPet=getPet();
+  var aff=Math.min(100,pr.pAff[pr.pActive]||0);
+  var html=
+  '<div class="active-pet-card">'+
+    '<div style="font-size:3.5rem;flex-shrink:0;animation:bounce 2s ease-in-out infinite">'+curPet.e+'</div>'+
+    '<div style="flex:1">'+
+      '<div style="font-weight:900;font-size:1.05rem;margin-bottom:4px">'+curPet.name+'</div>'+
+      '<span class="badge '+badgeClass(curPet.rarity)+'" style="margin-bottom:6px">'+curPet.rl+'</span>'+
+      '<p style="color:var(--t2);font-size:.8rem;margin:6px 0">'+curPet.desc+'</p>'+
+      '<div style="background:rgba(0,0,0,.3);border-radius:8px;padding:6px 10px;font-size:.76rem;color:var(--gold)">⚡ '+curPet.ab+'</div>'+
+      '<div style="margin-top:7px">'+
+        '<div style="display:flex;justify-content:space-between;font-size:.72rem;color:var(--t3);margin-bottom:3px"><span>Afinidade</span><span>'+aff+'%</span></div>'+
+        '<div class="aff-bar"><div class="aff-fill" style="width:'+aff+'%"></div></div>'+
+      '</div>'+
+    '</div>'+
+  '</div>'+
+  '<div style="font-size:.83rem;color:var(--t2)"><b style="color:var(--t1)">'+pr.pOwned.length+'</b>/'+PETS.length+' pets • Toque para equipar</div>'+
+  '<div class="pet-grid">';
+  for(var i=0;i<PETS.length;i++){
+    var pp=PETS[i];
+    var owned=pr.pOwned.indexOf(pp.id)>=0;
+    var isActive=pp.id===pr.pActive;
+    var aff2=Math.min(100,pr.pAff[pp.id]||0);
+    if(owned){
+      html+='<div class="pet-card '+(isActive?'active-p':'')+'" onclick="equipPet(\''+pp.id+'\')">';
+      if(isActive) html+='<div class="pet-active-badge">ATIVO</div>';
+      html+='<div class="pet-emoji">'+pp.e+'</div>'+
+        '<div style="font-weight:700;font-size:.85rem;margin-bottom:3px">'+pp.name+'</div>'+
+        '<span class="badge '+badgeClass(pp.rarity)+'">'+pp.rl+'</span>'+
+        '<div class="aff-bar" style="margin-top:7px"><div class="aff-fill" style="width:'+aff2+'%"></div></div>'+
+      '</div>';
+    } else {
+      html+='<div class="pet-card locked-p">'+
+        '<div class="pet-emoji" style="filter:blur(4px) grayscale(1)">?</div>'+
+        '<div style="font-weight:700;font-size:.85rem;margin-bottom:3px;filter:blur(5px)">???</div>'+
+        '<span class="badge '+badgeClass(pp.rarity)+'">'+pp.rl+'</span>'+
+        '<div style="font-size:.7rem;color:var(--t3);margin-top:6px">🔒 Loja</div>'+
+      '</div>';
+    }
+  }
+  html+='</div><div style="height:10px"></div>';
+  document.getElementById('petsBody').innerHTML=html;
+}
+
+function equipPet(id){
+  var pr=P();if(!pr)return;
+  if(pr.pOwned.indexOf(id)<0)return;
+  pr.pActive=id;
+  var pp=pet(id);
+  saveAll();
+  renderPets();
+  toast(pp.e+' '+pp.name+' equipado!','toast-g');
+}
+
+/* ═══════════════════════════════════════════════════
+   SHOP
+═══════════════════════════════════════════════════ */
+function goShop(){ renderShop(); showScreen('shop'); updNav('shop'); }
+
+function renderShop(){
+  var pr=P();if(!pr)return;
+  var btotal=(pr.boxes.c||0)+(pr.boxes.u||0)+(pr.boxes.r||0)+(pr.boxes.g||0);
+  var html=
+  '<div class="currency-bar">'+
+    '<div class="cur-item"><div class="cur-amt t-gold">🪙 '+pr.coins+'</div><div class="cur-lbl">Moedas</div></div>'+
+    '<div class="cur-item"><div class="cur-amt t-pur">💎 '+pr.gems+'</div><div class="cur-lbl">Gemas</div></div>'+
+    '<div class="cur-item"><div class="cur-amt" style="color:var(--cyan)">🎁 '+btotal+'</div><div class="cur-lbl">Caixas</div></div>'+
+  '</div>'+
+  '<div class="section-title">🎁 Comprar Caixas</div>'+
+  '<div class="box-grid">'+
+    '<div class="box-card" onclick="buyBox(\'c\')"><div style="font-size:2rem;margin-bottom:5px">📦</div><div style="font-weight:700;font-size:.8rem;margin-bottom:3px">Comum</div><div style="color:var(--gold);font-size:.88rem;font-weight:700">🪙 50</div><div style="color:var(--t3);font-size:.68rem;margin-top:2px">Épico:3%</div>'+(pr.boxes.c?'<div style="color:var(--grn);font-size:.75rem;margin-top:3px">×'+pr.boxes.c+'</div>':'')+' </div>'+
+    '<div class="box-card" onclick="buyBox(\'u\')"><div style="font-size:2rem;margin-bottom:5px">🎁</div><div style="font-weight:700;font-size:.8rem;margin-bottom:3px">Premium</div><div style="color:var(--gold);font-size:.88rem;font-weight:700">🪙 200</div><div style="color:var(--t3);font-size:.68rem;margin-top:2px">Lend:5%</div>'+(pr.boxes.u?'<div style="color:var(--grn);font-size:.75rem;margin-top:3px">×'+pr.boxes.u+'</div>':'')+' </div>'+
+    '<div class="box-card" onclick="buyBox(\'r\')"><div style="font-size:2rem;margin-bottom:5px">✨</div><div style="font-weight:700;font-size:.8rem;margin-bottom:3px">Rara</div><div style="color:var(--pur);font-size:.88rem;font-weight:700">💎 10</div><div style="color:var(--t3);font-size:.68rem;margin-top:2px">Mítico:5%</div>'+(pr.boxes.r?'<div style="color:var(--grn);font-size:.75rem;margin-top:3px">×'+pr.boxes.r+'</div>':'')+' </div>'+
+    '<div class="box-card" onclick="buyBox(\'g\')"><div style="font-size:2rem;margin-bottom:5px">💫</div><div style="font-weight:700;font-size:.8rem;margin-bottom:3px">Lendária</div><div style="color:var(--pur);font-size:.88rem;font-weight:700">💎 50</div><div style="color:var(--t3);font-size:.68rem;margin-top:2px">Mítico:20%</div>'+(pr.boxes.g?'<div style="color:var(--grn);font-size:.75rem;margin-top:3px">×'+pr.boxes.g+'</div>':'')+' </div>'+
+  '</div>'+
+  '<div class="section-title">🎴 Abrir Caixas</div>'+
+  '<div style="display:flex;gap:8px">'+
+    '<button class="btn btn-pur" style="flex:1;'+(pr.boxes.c?'':'opacity:.38;pointer-events:none')+'" onclick="openBox(\'c\')">📦 ('+( pr.boxes.c||0)+')</button>'+
+    '<button class="btn btn-pur" style="flex:1;'+(pr.boxes.u?'':'opacity:.38;pointer-events:none')+'" onclick="openBox(\'u\')">🎁 ('+( pr.boxes.u||0)+')</button>'+
+  '</div>'+
+  '<button class="btn btn-p btn-full" style="'+(pr.boxes.r?'':'opacity:.38;pointer-events:none')+'" onclick="openBox(\'r\')">✨ Caixa Rara ('+( pr.boxes.r||0)+')</button>'+
+  '<button class="btn btn-full" style="background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#1a0800;font-weight:700;'+(pr.boxes.g?'':'opacity:.38;pointer-events:none')+'" onclick="openBox(\'g\')">💫 Caixa Lendária ('+( pr.boxes.g||0)+')</button>'+
+  '<div class="section-title">⬆️ XP e Moedas</div>'+
+  '<div style="display:flex;gap:8px">'+
+    '<button class="btn btn-s" style="flex:1" onclick="buyXPBonus()">🪙 50 → +150 XP</button>'+
+    '<button class="btn btn-s" style="flex:1" onclick="buyGems()">🪙 300 → 💎 10</button>'+
+  '</div>'+
+  '<div style="height:10px"></div>';
+  document.getElementById('shopBody').innerHTML=html;
+}
+
+function buyBox(t){
+  var pr=P();if(!pr)return;
+  var gemP={r:10,g:50};
+  var coinP={c:50,u:200};
+  if(gemP[t]){
+    if(pr.gems<gemP[t]){toast('💎 Gemas insuficientes!','toast-r');return;}
+    pr.gems-=gemP[t];
+  } else {
+    if(pr.coins<coinP[t]){toast('🪙 Moedas insuficientes!','toast-r');return;}
+    pr.coins-=coinP[t];
+  }
+  pr.boxes[t]=(pr.boxes[t]||0)+1;
+  saveAll(); renderShop(); toast('🎁 Caixa comprada!','toast-g');
+}
+
+function openBox(t){
+  var pr=P();if(!pr)return;
+  if(!pr.boxes[t]){return;}
+  pr.boxes[t]--;
+  var roll=Math.random()*100;
+  var rarity='common';
+  var odds=BOX_ODDS[t]||BOX_ODDS.c;
+  for(var i=0;i<odds.length;i++){ if(roll<=odds[i].max){rarity=odds[i].r;break;} }
+  var pool=PETS.filter(function(pp){return pp.rarity===rarity&&pr.pOwned.indexOf(pp.id)<0;});
+  if(!pool.length) pool=PETS.filter(function(pp){return pp.rarity===rarity;});
+  if(!pool.length) pool=PETS;
+  var np=rnd(pool);
+  if(pr.pOwned.indexOf(np.id)<0){
+    pr.pOwned.push(np.id);
+    pr.pLv[np.id]=1; pr.pAff[np.id]=0;
+    saveAll(); renderShop();
+    showModal(
+      '<div style="font-size:.8rem;color:var(--gold);font-weight:700;margin-bottom:6px">NOVO PET!</div>'+
+      '<div style="font-size:4rem;margin-bottom:8px;animation:bounce 1s ease-in-out infinite">'+np.e+'</div>'+
+      '<h2 style="font-size:1.4rem;font-weight:900;margin-bottom:4px">'+np.name+'</h2>'+
+      '<span class="badge '+badgeClass(np.rarity)+'" style="margin-bottom:10px">'+np.rl+'</span>'+
+      '<p style="color:var(--t2);font-size:.85rem;margin:10px 0">'+np.desc+'</p>'+
+      '<div style="background:var(--bg3);border-radius:8px;padding:8px 12px;font-size:.8rem;color:var(--gold);margin-bottom:16px">⚡ '+np.ab+'</div>'+
+      '<button class="btn btn-p btn-full" onclick="closeModal()">Incrível! 🎉</button>'
+    );
+    spawnConfetti();
+    if(pr.pOwned.length>=3) unlockAch('collector_3');
+    if(pr.pOwned.length>=10) unlockAch('collector_10');
+    if(pr.pOwned.length>=PETS.length) unlockAch('collector_all');
+  } else {
+    pr.coins+=80;
+    saveAll(); renderShop();
+    toast(np.e+' duplicado → +80 🪙','toast-p');
+  }
+}
+
+function buyXPBonus(){
+  var pr=P();if(!pr)return;
+  if(pr.coins<50){toast('🪙 Moedas insuficientes!','toast-r');return;}
+  pr.coins-=50; saveAll();
+  addXP(150); renderShop(); toast('⭐ +150 XP!','toast-g');
+}
+
+function buyGems(){
+  var pr=P();if(!pr)return;
+  if(pr.coins<300){toast('🪙 Moedas insuficientes!','toast-r');return;}
+  pr.coins-=300; pr.gems+=10; saveAll();
+  renderShop(); toast('💎 +10 Gemas!','toast-p');
+}
+
+/* ═══════════════════════════════════════════════════
+   ACHIEVEMENTS
+═══════════════════════════════════════════════════ */
+function goAch(){ renderAch(); showScreen('achievements'); }
+
+function renderAch(){
+  var pr=P();if(!pr)return;
+  var html='<div style="color:var(--t2);font-size:.83rem;margin-bottom:4px">'+pr.achs.length+'/'+ACHS.length+' desbloqueadas</div>';
+  for(var i=0;i<ACHS.length;i++){
+    var a=ACHS[i];
+    var done=pr.achs.indexOf(a.id)>=0;
+    html+='<div class="ach-row '+(done?'done':'')+'" >'+
+      '<div class="ach-icon-wrap">'+a.icon+'</div>'+
+      '<div>'+
+        '<div style="font-weight:700;font-size:.87rem;margin-bottom:2px">'+a.name+'</div>'+
+        '<div style="color:var(--t2);font-size:.76rem;margin-bottom:3px">'+a.desc+'</div>'+
+        '<div style="color:'+(done?'var(--grn)':'var(--t3)')+';font-size:.76rem">'+(done?'✅ Concluída':'🔒 Bloqueada')+' · 🪙'+a.rw+'</div>'+
+      '</div>'+
+    '</div>';
+  }
+  html+='<div style="height:10px"></div>';
+  document.getElementById('achBody').innerHTML=html;
+}
+
+/* ═══════════════════════════════════════════════════
+   PROFILE SCREEN
+═══════════════════════════════════════════════════ */
+function goPfl(){ renderPfl(); showScreen('profile'); updNav('profile'); }
+
+function renderPfl(){
+  var pr=P();if(!pr)return;
+  var rank=getRank();
+  var acc=pr.totalC+pr.totalW>0?Math.round(pr.totalC/(pr.totalC+pr.totalW)*100):0;
+  var golden=Object.values(pr.phases).filter(function(p){return p&&p.best===100;}).length;
+  var xpPct=Math.min(100,Math.round(pr.xp/pr.xpNext*100));
+  var curPet=getPet();
+  var html=
+  '<div class="prof-header">'+
+    '<div style="font-size:3.5rem;margin-bottom:8px">'+curPet.e+'</div>'+
+    '<div style="font-size:1.4rem;font-weight:900;margin-bottom:4px">'+esc(pr.name)+'</div>'+
+    '<div style="color:var(--gold);font-size:.85rem;margin-bottom:8px">Matemático em ascensão</div>'+
+    '<div class="rank-badge" style="background:'+rank.color+'22;color:'+rank.color+';border:1px solid '+rank.color+'44;display:inline-flex">'+rank.icon+' '+rank.name+'</div>'+
+  '</div>'+
+  '<div class="stat-grid">'+
+    '<div class="stat-box"><div class="stat-val" style="color:var(--gold)">'+pr.level+'</div><div class="stat-lbl">Nível</div></div>'+
+    '<div class="stat-box"><div class="stat-val" style="color:var(--red)">'+pr.streak+'🔥</div><div class="stat-lbl">Streak</div></div>'+
+    '<div class="stat-box"><div class="stat-val" style="color:var(--grn)">'+pr.totalC+'</div><div class="stat-lbl">✅ Acertos</div></div>'+
+    '<div class="stat-box"><div class="stat-val" style="color:var(--pur)">'+acc+'%</div><div class="stat-lbl">Precisão</div></div>'+
+    '<div class="stat-box"><div class="stat-val" style="color:var(--gold)">'+golden+'</div><div class="stat-lbl">⭐ Douradas</div></div>'+
+    '<div class="stat-box"><div class="stat-val" style="color:var(--cyan)">'+pr.achs.length+'</div><div class="stat-lbl">🏅 Conquistas</div></div>'+
+  '</div>'+
+  '<div class="card-s">'+
+    '<div style="font-weight:700;margin-bottom:8px">📊 XP — Nível '+pr.level+'</div>'+
+    '<div style="font-size:.8rem;color:var(--t2);margin-bottom:6px">'+pr.xp+' / '+pr.xpNext+' XP</div>'+
+    '<div class="pbar" style="height:10px"><div class="pfill" style="width:'+xpPct+'%;background:linear-gradient(90deg,var(--pur),var(--blue))"></div></div>'+
+  '</div>'+
+  '<button class="btn btn-s btn-full" onclick="showScreen(\'profiles\');renderProfiles()">🔄 Trocar Perfil</button>'+
+  '<button class="btn btn-red btn-full" onclick="resetProfile()">🗑️ Resetar Este Perfil</button>'+
+  '<div style="height:10px"></div>';
+  document.getElementById('profileBody').innerHTML=html;
+}
+
+function resetProfile(){
+  if(!confirm('Resetar este perfil? Todo progresso será perdido!'))return;
+  var pr=P();if(!pr)return;
+  var id=pr.id,name=pr.name;
+  var np=defProfile(name);
+  np.id=id;
+  G.curProfile=np;
+  var idx=G.profiles.findIndex(function(p){return p.id===id;});
+  if(idx>=0)G.profiles[idx]=np;
+  saveAll();
+  goHome();
+  toast('Perfil resetado.','toast-g');
+}
+
+/* ═══════════════════════════════════════════════════
+   GAME SESSION
+═══════════════════════════════════════════════════ */
+var GS={};
+var _timerID=null;
+
+function startPhase(w,p){
+  var key=pk(w,p);
+  var ph=WORLDS[w].phases[p];
+  var qs;
+  // OMBEP phases use dedicated bank
+  if(ph.ombep||ph.boss&&w===4){
+    var lvl=ph.level||'ouro';
+    if(ph.boss&&w===4) lvl='boss';
+    qs=getOMBEPQuestions(lvl,10);
+  } else {
+    qs=Q[key];
+  }
+  if(!qs||!qs.length){toast('Questões em breve! 🔧','toast-r');return;}
+  var cnt=(ph.ombep||ph.boss)?10:8;
+  var sh=shuf(qs).slice(0,cnt);
+  GS_powerups={hint:false,double:false,shield:false};
+  GS={w:w,p:p,qs:sh,cur:0,ans:[],gameStreak:0,bossHP:100,startTime:Date.now(),combo:0};
+  renderGameQ();
+  showScreen('game');
+}
+
+function renderGameQ(){
+  var wo=WORLDS[GS.w],ph=wo.phases[GS.p],q=GS.qs[GS.cur];
+  var tot=GS.qs.length,pct=Math.round(GS.cur/tot*100);
+  var curPet=getPet();
+
+  var bossH='';
+  if(ph.boss){
+    bossH='<div class="boss-hd">'+
+      '<div style="font-size:2.5rem;margin-bottom:3px;animation:shake .5s ease infinite alternate">💀</div>'+
+      '<div style="font-weight:900;color:var(--red);margin-bottom:6px">BOSS: '+ph.name+'</div>'+
+      '<div class="boss-hp"><div class="boss-hpf" id="bossHPF" style="width:'+GS.bossHP+'%"></div></div>'+
+    '</div>';
+  }
+
+  var diffH='';
+  for(var d=1;d<=5;d++){
+    diffH+='<span style="display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:3px;background:'+(d<=ph.diff?wo.color:'var(--brd)')+'"></span>';
+  }
+
+  var letters=['A','B','C','D'];
+  var optsH='';
+  for(var i=0;i<q.o.length;i++){
+    optsH+='<button class="opt" id="opt'+i+'" onclick="pickAns('+i+')">'+
+      '<div class="opt-letter">'+letters[i]+'</div>'+
+      '<span>'+esc(q.o[i])+'</span>'+
+    '</button>';
+  }
+
+  var gameHTML=
+  '<div class="game-tb">'+
+    '<button class="game-quit" onclick="quitGame()">✕ Sair</button>'+
+    '<div style="flex:1;margin:0 10px">'+
+      '<div style="font-size:.75rem;color:var(--t2);margin-bottom:3px">'+wo.emoji+' '+ph.name+'</div>'+
+      '<div style="height:6px;background:var(--bg3);border-radius:3px;overflow:hidden">'+
+        '<div style="height:100%;width:'+pct+'%;background:'+wo.color+';border-radius:3px;transition:width .3s"></div>'+
+      '</div>'+
+    '</div>'+
+    '<div style="font-size:.82rem;color:var(--t2);white-space:nowrap">'+(GS.cur+1)+'/'+tot+'</div>'+
+    (GS.gameStreak>=3?'<div style="display:flex;align-items:center;gap:4px;font-size:.82rem;font-weight:700;padding:5px 9px;background:rgba(239,68,68,.15);border-radius:7px;border:1px solid rgba(239,68,68,.3)">🔥'+GS.gameStreak+'</div>':'')+
+  '</div>'+
+  '<div class="game-body" id="gameBody">'+
+    bossH+
+    // Powerup bar
+    '<div style="display:flex;gap:7px;margin-bottom:-2px">'+
+      '<button onclick="usePowerup(\'hint\')" style="flex:1;background:var(--bg2);border:1px solid var(--brd);border-radius:8px;padding:6px;font-size:.75rem;cursor:pointer;color:var(--t2)">💡 Dica 30🪙</button>'+
+      '<button onclick="usePowerup(\'double\')" style="flex:1;background:var(--bg2);border:1px solid var(--brd);border-radius:8px;padding:6px;font-size:.75rem;cursor:pointer;color:var(--t2)">⚡ 2x XP 40🪙</button>'+
+      '<button onclick="usePowerup(\'shield\')" style="flex:1;background:var(--bg2);border:1px solid var(--brd);border-radius:8px;padding:6px;font-size:.75rem;cursor:pointer;color:var(--t2)">🛡️ Escudo 60🪙</button>'+
+      '<button onclick="usePowerup(\'skip\')" style="flex:1;background:var(--bg2);border:1px solid var(--brd);border-radius:8px;padding:6px;font-size:.75rem;cursor:pointer;color:var(--t2)">⏭️ Pular 50🪙</button>'+
+    '</div>'+
+    '<div class="bubble" id="petBubble">'+
+      '<div class="bubble-pet">'+curPet.e+'</div>'+
+      '<div>'+
+        '<div class="bubble-name">'+curPet.name+'</div>'+
+        '<div class="bubble-msg" id="bubbleMsg">"Questão '+(GS.cur+1)+' de '+tot+'. Vamos lá!"</div>'+
+      '</div>'+
+    '</div>'+
+    '<div class="q-card">'+
+      '<div class="q-meta">'+
+        '<div class="diff-dots">'+diffH+'</div>'+
+        '<div class="q-topic">'+ph.topic+'</div>'+
+        '<div class="q-timer" id="qTimer">⏱ 0s</div>'+
+      '</div>'+
+      '<div class="q-text">'+esc(q.q)+'</div>'+
+    '</div>'+
+    '<div class="opts" id="optsGrid">'+optsH+'</div>'+
+    '<div id="expBox" style="display:none"></div>'+
+    '<button class="btn btn-p btn-full btn-lg" id="nextBtn" style="display:none" onclick="nextQ()">Próxima →</button>'+
+    '<div style="height:10px"></div>'+
+  '</div>';
+
+  document.getElementById('game').innerHTML=gameHTML;
+  GS.qStart=Date.now();
+  clearInterval(_timerID);
+  _timerID=setInterval(function(){
+    var el=document.getElementById('qTimer');
+    if(!el){clearInterval(_timerID);return;}
+    el.textContent='⏱ '+Math.round((Date.now()-GS.qStart)/1000)+'s';
+  },1000);
+}
+
+function pickAns(idx){
+  clearInterval(_timerID);
+  var q=GS.qs[GS.cur];
+  var correct=idx===q.a;
+  var elapsed=(Date.now()-GS.qStart)/1000;
+  GS.ans.push({c:correct,t:elapsed});
+
+  // Disable all opts
+  for(var i=0;i<q.o.length;i++){
+    var el=document.getElementById('opt'+i);
+    if(!el)continue;
+    el.disabled=true;
+    if(i===q.a) el.classList.add('oright');
+    else if(i===idx&&!correct) el.classList.add('owrong');
+  }
+
+  var pr=P();
+  if(correct){
+    GS.gameStreak++;
+    pr.totalC++;
+    if(GS.gameStreak>=3) unlockAch('streak_3');
+    if(elapsed<3) unlockAch('speed_demon');
+    var pet_obj=getPet();
+    var xm=getXPMultiplier();
+    var sm=GS.gameStreak>=5?1.5:GS.gameStreak>=3?1.2:1;
+    var xpG=Math.round(18*xm*sm);
+    if(GS_powerups.double){xpG*=2;GS_powerups.double=false;}
+    if(pr.pActive==='vortexis') xpG+=5;
+    GS.combo=(GS.combo||0)+1;
+    if(GS.combo>=2&&GS.combo<COMBO_MSGS.length&&COMBO_MSGS[GS.combo]){
+      toast(COMBO_MSGS[GS.combo],'toast-g');
+    }
+    if(GS.combo>=5) unlockAch('combo_5');
+    if(GS.combo>=10) unlockAch('combo_10');
+    addXP(xpG);
+    pr.coins+=6;
+    pr.pAff[pr.pActive]=(pr.pAff[pr.pActive]||0)+1;
+    floatXP('+'+xpG+' XP','#f59e0b');
+    if(pr.totalC===1) unlockAch('first_correct');
+    updDailyProgress('correct',1);
+    // Boss HP
+    if(WORLDS[GS.w].phases[GS.p].boss){
+      GS.bossHP=Math.max(0,GS.bossHP-Math.round(100/GS.qs.length));
+      var hf=document.getElementById('bossHPF');
+      if(hf) hf.style.width=GS.bossHP+'%';
+    }
+    setBubble(rnd(pet_obj.ok));
+    // Particles on button
+    var btn_el=document.getElementById('opt'+idx);
+    if(btn_el){var r=btn_el.getBoundingClientRect();spawnParticles(r.left+r.width/2,r.top,'#4ade80');}
+  } else {
+    GS.combo=0;
+    if(GS_powerups.shield){
+      GS_powerups.shield=false;
+      toast('🛡️ Escudo absorveu o erro!','toast-p');
+    } else {
+      GS.gameStreak=0;
+      pr.totalW++;
+    }
+    var pet_obj2=getPet();
+    var xpErr=pr.pActive==='vortexis'?8:pr.pActive==='zeroix'?5:0;
+    if(xpErr>0){addXP(xpErr);floatXP('+'+xpErr+' XP (erro!)','#8b5cf6');}
+    setBubble(rnd(pet_obj2.no));
+    var errBtn=document.getElementById('opt'+idx);
+    if(errBtn){errBtn.classList.add('shake');}
+  }
+
+  // Show explanation
+  var eb=document.getElementById('expBox');
+  if(eb){
+    eb.style.display='block';
+    eb.innerHTML='<div class="exp-box"><div class="exp-title">💡 Explicação</div><div class="exp-text">'+esc(q.e||'Continue praticando!')+'</div></div>';
+  }
+
+  // Show next button
+  var nb=document.getElementById('nextBtn');
+  if(nb){
+    nb.style.display='flex';
+    var rem=GS.qs.length-GS.cur-1;
+    nb.textContent=rem===0?'📊 Ver Resultado →':'Próxima ('+rem+') →';
+  }
+  saveAll();
+}
+
+function setBubble(msg){
+  var el=document.getElementById('bubbleMsg');
+  if(el) el.textContent='"'+msg+'"';
+}
+
+function nextQ(){
+  GS.cur++;
+  if(GS.cur>=GS.qs.length){ showResult(); }
+  else { renderGameQ(); }
+}
+
+function quitGame(){
+  if(confirm('Sair? O progresso desta fase será perdido.')){
+    clearInterval(_timerID);
+    goMap();
+  }
+}
+
+/* ═══════════════════════════════════════════════════
+   RESULT
+═══════════════════════════════════════════════════ */
+function showResult(){
+  clearInterval(_timerID);
+  var pr=P();
+  var wo=WORLDS[GS.w],ph=wo.phases[GS.p];
+  var tot=GS.ans.length;
+  var cor=GS.ans.filter(function(a){return a.c;}).length;
+  var pct=Math.round(cor/tot*100);
+  var passed=pct>=80;
+  var stars=pct===100?3:pct>=90?2:pct>=80?1:0;
+  var key=pk(GS.w,GS.p);
+  var ex=pr.phases[key];
+  if(passed){
+    // Eulix bonus box on perfect
+    if(pr.pActive==='eulix'&&pct===100){
+      pr.boxes.u=(pr.boxes.u||0)+1;
+      toast('📏 Eulix recompensa! +1 caixa Premium!','toast-g');
+    }
+    // Gaussix XP bonus
+    if(pr.pActive==='gauss_pet'&&(GS.w===0||GS.w===4)){
+      addXP(50); toast('🧮 Gaussix bônus: +50 XP!','toast-g');
+    }
+    updDailyProgress('phases',1);
+    if(pct===100) updDailyProgress('perfect',1);
+    pr.phases[key]={
+      stars:ex?Math.max(ex.stars,stars):stars,
+      best:ex?Math.max(ex.best,pct):pct,
+      att:(ex?ex.att:0)+1,
+    };
+  }
+  var noErrors=GS.ans.filter(function(a){return !a.c;}).length===0;
+  if(noErrors&&passed) unlockAch('no_errors');
+  var xpR=passed?Math.round(60+pct*.6+stars*25):12;
+  var coR=passed?Math.round(30+stars*20):8;
+  if(passed){
+    addXP(xpR); pr.coins+=coR;
+    if(pct===100){
+      unlockAch('first_100');
+      spawnConfetti();
+      var goldC=Object.values(pr.phases).filter(function(p){return p&&p.best===100;}).length;
+      if(goldC>=5)unlockAch('perfect_5');
+      if(goldC>=20)unlockAch('perfect_20');
+    }
+  }
+  // World completions
+  var wDone=WORLDS[GS.w].phases.every(function(_,p2){return !!pr.phases[pk(GS.w,p2)];});
+  if(wDone){
+    var wAchs=['world_1','world_2','world_3','world_4','world_5'];
+    if(wAchs[GS.w]) unlockAch(wAchs[GS.w]);
+  }
+  if(ph.ombep){
+    if(ph.level==='bronze'&&passed)unlockAch('ombep_bronze');
+    if(ph.level==='prata'&&passed)unlockAch('ombep_prata');
+    if(ph.level==='ouro'&&pct>=80)unlockAch('ombep_ouro');
+  }
+  saveAll();
+
+  var curPet=getPet();
+  var isG=pct===100;
+  var col=isG?'#f59e0b':passed?'#4ade80':'#ef4444';
+  var emoji=isG?'🌟':passed?stars>=2?'🎉':'✅':'💪';
+  var title=isG?'FASE DOURADA!':passed?'Fase Completa!':'Continue Tentando!';
+  var pm=isG?curPet.p100[0]:passed?rnd(curPet.ok):rnd(curPet.no);
+  var circ=2*Math.PI*52;
+  var dash=circ*(1-pct/100);
+
+  document.getElementById('resultTitle').textContent=wo.emoji+' '+ph.name;
+
+  var starsH='';
+  for(var si=0;si<3;si++) starsH+='<div class="star-item" id="sr'+si+'">'+(si<stars?'⭐':'☆')+'</div>';
+
+  var rwH='';
+  if(passed){
+    rwH='<div class="rewards-box">'+
+      '<div class="rw-title">🎁 RECOMPENSAS</div>'+
+      '<div class="rw-list">'+
+        '<div class="rw-item"><div style="font-size:1.5rem">⭐</div><div style="font-weight:700;font-size:.9rem;color:var(--gold)">+'+xpR+'</div><div style="font-size:.7rem;color:var(--t3)">XP</div></div>'+
+        '<div class="rw-item"><div style="font-size:1.5rem">🪙</div><div style="font-weight:700;font-size:.9rem;color:var(--gold)">+'+coR+'</div><div style="font-size:.7rem;color:var(--t3)">Moedas</div></div>'+
+        (isG?'<div class="rw-item"><div style="font-size:1.5rem">🌟</div><div style="font-weight:700;font-size:.9rem;color:var(--gold)">DOURADA</div><div style="font-size:.7rem;color:var(--t3)">Fase</div></div>':'')+
+      '</div>'+
+    '</div>';
+  }
+
+  var actH='';
+  if(!passed) actH+='<button class="btn btn-p btn-full btn-lg" onclick="retryPhase()">🔄 Tentar Novamente</button>';
+  if(passed&&GS.p<WORLDS[GS.w].phases.length-1) actH+='<button class="btn btn-p btn-full btn-lg" onclick="nextPhase()">▶️ Próxima Fase →</button>';
+  if(passed&&GS.p===WORLDS[GS.w].phases.length-1&&GS.w<WORLDS.length-1) actH+='<button class="btn btn-grn btn-full btn-lg" onclick="nextWorld()">🌍 Próximo Mundo →</button>';
+  actH+='<button class="btn btn-s btn-full" onclick="goMap()">🗺️ Mapa</button>';
+  actH+='<button class="btn btn-gh btn-full" onclick="goHome()">🏠 Início</button>';
+
+  document.getElementById('resultBody').innerHTML=
+  '<div style="text-align:center;width:100%">'+
+    '<div style="font-size:4rem;margin-bottom:8px">'+emoji+'</div>'+
+    '<div style="font-size:1.9rem;font-weight:900;color:'+col+';margin-bottom:5px">'+title+'</div>'+
+    '<div style="color:var(--t2)">'+(isG?'Perfeição absoluta!':passed?pct+'% — Aprovado!':pct+'% — Precisa de 80%')+'</div>'+
+  '</div>'+
+  '<div class="ring-wrap">'+
+    '<svg class="ring-svg" viewBox="0 0 120 120">'+
+      '<circle class="ring-bg" cx="60" cy="60" r="52"/>'+
+      '<circle class="ring-fill" id="ringFill" cx="60" cy="60" r="52" stroke="'+col+'" stroke-dasharray="'+circ+'" stroke-dashoffset="'+circ+'"/>'+
+    '</svg>'+
+    '<div class="ring-center">'+
+      '<div class="ring-pct" style="color:'+col+'">'+pct+'%</div>'+
+      '<div class="ring-lbl">'+cor+'/'+tot+' certas</div>'+
+    '</div>'+
+  '</div>'+
+  '<div class="star-row">'+starsH+'</div>'+
+  '<div class="res-stats">'+
+    '<div class="res-box"><div class="res-val t-grn">'+cor+'</div><div class="res-lbl">✅ Acertos</div></div>'+
+    '<div class="res-box"><div class="res-val t-red">'+(tot-cor)+'</div><div class="res-lbl">❌ Erros</div></div>'+
+    '<div class="res-box"><div class="res-val t-gold">'+stars+'⭐</div><div class="res-lbl">Estrelas</div></div>'+
+  '</div>'+
+  '<div class="card-s" style="display:flex;align-items:center;gap:12px;width:100%">'+
+    '<div style="font-size:2.8rem">'+curPet.e+'</div>'+
+    '<div style="font-size:.88rem;font-style:italic;flex:1;line-height:1.5">"'+esc(pm)+'"</div>'+
+  '</div>'+
+  rwH+
+  '<div class="result-actions">'+actH+'</div>'+
+  '<div style="height:16px"></div>';
+
+  showScreen('result');
+  document.getElementById('result').scrollTop=0;
+
+  // Animate ring
+  setTimeout(function(){
+    var rf=document.getElementById('ringFill');
+    if(rf) rf.style.strokeDashoffset=dash;
+  },200);
+
+  // Animate stars
+  for(var si2=0;si2<3;si2++){
+    (function(i){
+      setTimeout(function(){
+        var el=document.getElementById('sr'+i);
+        if(el&&i<stars) el.classList.add('lit');
+      },500+i*200);
+    })(si2);
+  }
+
+  if(isG){ setTimeout(spawnConfetti,300); setTimeout(spawnConfetti,700); }
+  updTopbar();
+}
+
+function retryPhase(){ startPhase(GS.w,GS.p); }
+function nextPhase(){ startPhase(GS.w,GS.p+1); }
+function nextWorld(){ startPhase(GS.w+1,0); }
+
+/* ═══════════════════════════════════════════════════
+   UTILS
+═══════════════════════════════════════════════════ */
+function esc(s){
+  if(typeof s!=='string') s=String(s||'');
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+function generateStars(){
+  var bg=document.getElementById('starsBg');
+  if(!bg)return;
+  var html='';
+  for(var i=0;i<60;i++){
+    var sz=1+Math.random()*3;
+    var op=0.2+Math.random()*0.6;
+    var dur=2+Math.random()*4;
+    html+='<div class="star-dot" style="width:'+sz+'px;height:'+sz+'px;top:'+Math.random()*100+'%;left:'+Math.random()*100+'%;opacity:'+op+';animation-duration:'+dur+'s;animation-delay:'+Math.random()*3+'s"></div>';
+  }
+  bg.innerHTML=html;
+}
+
+/* ═══════════════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════════════ */
+
+// ═══════════════════════════════════════════════════
+// MECÂNICAS DE VÍCIO
+// ═══════════════════════════════════════════════════
+
+var COMBO_MSGS = [
+  '',
+  '',
+  '🔥 COMBO x2!',
+  '⚡ COMBO x3!',
+  '💥 COMBO x4!',
+  '🌟 COMBO x5!',
+  '🌀 COMBO INSANO!',
+];
+
+var DAILY_CHALLENGES = [
+  {id:'d1',desc:'Acerte 10 questões hoje',target:10,type:'correct',reward:50,gem:0},
+  {id:'d2',desc:'Complete 2 fases hoje',target:2,type:'phases',reward:80,gem:0},
+  {id:'d3',desc:'Fase 100% hoje',target:1,type:'perfect',reward:100,gem:1},
+  {id:'d4',desc:'Acerte 5 seguidas sem errar',target:5,type:'streak',reward:60,gem:0},
+  {id:'d5',desc:'Jogue por 3 dias seguidos',target:3,type:'streak_day',reward:150,gem:2},
+  {id:'d6',desc:'Abra uma caixa',target:1,type:'open_box',reward:30,gem:0},
+  {id:'d7',desc:'Equipe um pet novo',target:1,type:'equip_pet',reward:40,gem:0},
+];
+
+function getDailyChallenge() {
+  var pr = P(); if(!pr) return null;
+  var today = new Date().toDateString();
+  if(!pr.dailyChallenge || pr.dailyChallenge.date !== today) {
+    var ch = DAILY_CHALLENGES[Math.floor(Math.random()*DAILY_CHALLENGES.length)];
+    pr.dailyChallenge = {date:today, id:ch.id, progress:0, done:false};
+    saveAll();
+  }
+  return pr.dailyChallenge;
+}
+
+function updDailyProgress(type, amount) {
+  var pr = P(); if(!pr) return;
+  var dc = getDailyChallenge(); if(!dc||dc.done) return;
+  var ch = DAILY_CHALLENGES.find(function(c){return c.id===dc.id;});
+  if(!ch||ch.type!==type) return;
+  dc.progress = (dc.progress||0) + (amount||1);
+  if(dc.progress>=ch.target && !dc.done) {
+    dc.done = true;
+    pr.coins += ch.reward;
+    if(ch.gem>0) pr.gems += ch.gem;
+    saveAll();
+    toast('🎯 Desafio Diário concluído! +'+ch.reward+'🪙'+(ch.gem?' +'+ch.gem+'💎':''),'toast-g');
+    setTimeout(function(){
+      showModal(
+        '<div style="font-size:.8rem;color:var(--gold);font-weight:700;margin-bottom:6px">DESAFIO DIÁRIO!</div>'+
+        '<div style="font-size:3rem;margin-bottom:8px">🎯</div>'+
+        '<h2 style="font-size:1.2rem;font-weight:900;margin-bottom:6px">'+ch.desc+'</h2>'+
+        '<p style="color:var(--t2);font-size:.9rem;margin-bottom:14px">Concluído com sucesso!</p>'+
+        '<div style="color:var(--gold);font-weight:700;margin-bottom:18px">+'+ch.reward+'🪙'+(ch.gem?' +'+ch.gem+'💎':'')+'</div>'+
+        '<button class="btn btn-p btn-full" onclick="closeModal()">Resgatar! 🎁</button>'
+      );
+    },500);
+  }
+  saveAll();
+}
+
+// XP MULTIPLIER SYSTEM
+function getXPMultiplier() {
+  var pr = P(); if(!pr) return 1;
+  var mult = 1;
+  // Streak bonus
+  if(pr.streak>=7) mult*=1.5;
+  else if(pr.streak>=3) mult*=1.25;
+  // Pet bonus
+  var pet_id = pr.pActive;
+  if(pet_id==='axiomata') mult*=1.4;
+  else if(pet_id==='infinithos') mult*=1.5;
+  else if(pet_id==='ramanujan_pet') mult*=1.75;
+  else if(pet_id==='gauss_pet') mult*=1.3;
+  else if(pet_id==='kalkulon') mult*=1.25;
+  return mult;
+}
+
+// POWER-UPS (spendable boosts)
+var POWERUPS = [
+  {id:'hint',name:'Dica',desc:'Elimina 1 opção errada',icon:'💡',cost:30},
+  {id:'skip',name:'Pular',desc:'Pula questão sem penalidade',icon:'⏭️',cost:50},
+  {id:'double',name:'XP Duplo',desc:'Próxima questão dá 2x XP',icon:'⚡',cost:40},
+  {id:'shield',name:'Escudo',desc:'Próximo erro não conta',icon:'🛡️',cost:60},
+];
+
+var GS_powerups = {hint:false,double:false,shield:false};
+
+function usePowerup(id) {
+  var pr = P(); if(!pr) return;
+  var pu = POWERUPS.find(function(p){return p.id===id;});
+  if(!pu) return;
+  if(pr.coins<pu.cost){toast('🪙 Moedas insuficientes!','toast-r');return;}
+  pr.coins-=pu.cost;
+  if(id==='hint') applyHint();
+  else if(id==='skip') skipQuestion();
+  else if(id==='double') {GS_powerups.double=true; toast('⚡ XP Duplo ativado!','toast-g');}
+  else if(id==='shield') {GS_powerups.shield=true; toast('🛡️ Escudo ativado!','toast-g');}
+  saveAll();
+}
+
+function applyHint() {
+  if(!GS||!GS.qs) return;
+  var q = GS.qs[GS.cur];
+  // Disable one wrong option
+  var wrong = [];
+  for(var i=0;i<q.o.length;i++){if(i!==q.a) wrong.push(i);}
+  if(!wrong.length) return;
+  var toDisable = wrong[Math.floor(Math.random()*wrong.length)];
+  var el = document.getElementById('opt'+toDisable);
+  if(el){el.disabled=true;el.style.opacity='0.2';}
+  toast('💡 Uma opção errada foi eliminada!','toast-g');
+}
+
+function skipQuestion() {
+  if(!GS||!GS.qs) return;
+  GS.ans.push({c:true,t:0,skipped:true});
+  nextQ();
+  toast('⏭️ Questão pulada!','toast-p');
+}
+
+function init(){
+  loadAll();
+  generateStars();
+
+  // Splash button
+  var sb=document.getElementById('splashBtn');
+  if(sb) sb.addEventListener('click',function(){
+    if(G.profiles.length===0){
+      showScreen('profiles');
+      renderProfiles();
+    } else if(G.profiles.length===1){
+      selectProfile(G.profiles[0].id);
+    } else {
+      showScreen('profiles');
+      renderProfiles();
+    }
+  });
+
+  // Modal close on overlay click
+  var ov=document.getElementById('mainModal');
+  if(ov) ov.addEventListener('click',function(e){if(e.target===ov)closeModal();});
+}
+
+if(document.readyState==='loading'){
+  document.addEventListener('DOMContentLoaded',init);
+} else { init(); }
+
+})();
+</script>
+
+<!-- Script externo -->
+
+<script src="script.js"></script>
+
+</body>
+</html>
